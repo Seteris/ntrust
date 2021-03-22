@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="utf-8">
+    <title>Hello There!</title>
+  </head>
+  <body>
+    <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
+    <script src="./bootstrap.js"></script>
+    <h1 class="center">
+      WebAssembly Test
+    </h1>
+    <div class="center-div row">
+      <div class="col">
+      <button id="random-bytes">Give me some random bytes</button>
+      </div>
+      <div class="col">
+        <button id="biggest-signed">Give me the biggest signed i64 value</button>
+      </div>
+      <div class="col">
+        <button id="biggest-unsigned">Give me the biggest unsigned i64 value</button>
+      </div>
+      <label>
+        Number of random bytes (default 128)
+        <input type="number" id="num-bytes"/>
+      </label>
+    </div>
+  </body>
+</html>
