@@ -1,12 +1,20 @@
 import * as wasm from "crypto_test";
 
+const DEFAULT_RANDOM_BYTES = 128;
+
+let DO_COMPARISON = 0;
+
+function hexHashDisplayBuilder(hash_array) {
+    return Array.prototype.map.call(hash_array, x => ('00' + x.toString(16)).slice(-2)).join('');
+}
+
 document.addEventListener('click', function (event) {
 
     // If the clicked element doesn't have the right selector, bail
     let allowed_events = [
         '#random-bytes',
-        "#biggest-signed",
-        "#biggest-unsigned"
+        '#hash-start',
+        '#activate-comparison'
     ];
     let matches = false;
     allowed_events.forEach(item => {
@@ -18,23 +26,42 @@ document.addEventListener('click', function (event) {
         return;
     }
 
-    event.preventDefault();
-    // console.log(event.target.id);
     switch(event.target.id) {
         case 'random-bytes':
             let num_bytes = BigInt(document.getElementById('num-bytes').value);
 
             if(num_bytes === 0n || num_bytes === undefined || num_bytes === null) {
-                num_bytes = BigInt("128");
+                num_bytes = BigInt(DEFAULT_RANDOM_BYTES);
             }
             console.log(num_bytes);
             alert(wasm.get_random_bytes(num_bytes));
             break;
-        case 'biggest-signed':
-            alert(wasm.biggest_signed());
+        case 'hash-start':
+            let input = document.getElementById('hash-input').value;
+            let reference = document.getElementById('hash-reference');
+            let hash_algorithm_radios = document.getElementsByName('hash_algorithm');
+            let hash = "";
+            for (let i = 0, length = hash_algorithm_radios.length; i < length; i++) {
+                if (hash_algorithm_radios[i].checked) {
+                    console.log("Target: " + i);
+                    hash = wasm.tiny_keccak(input, hash_algorithm_radios[i].value);
+                }
+            }
+            let hexHash = hexHashDisplayBuilder(hash);
+            reference.innerHTML = hexHash;
+            if (DO_COMPARISON) {
+                let comparison_textarea = document.getElementById('hash-comparison');
+                console.log("Comparing hashed value \"" + hexHash + "\" with comparison value \"" + comparison_textarea.value + "\"");
+                if (hexHash === comparison_textarea.value) {
+                    alert("Result and Comparison are equal.");
+                }
+            }
             break;
-        case 'biggest-unsigned':
-            alert(wasm.biggest_unsigned());
+        case 'activate-comparison':
+            let comparison_textarea = document.getElementById('hash-comparison');
+            let comparison_checkbox = document.getElementById('activate-comparison');
+            comparison_textarea.style.display = comparison_checkbox.checked ? "block" : "none"
+            DO_COMPARISON = comparison_checkbox.checked ? 1 : 0;
             break;
     }
 

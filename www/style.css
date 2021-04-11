@@ -14,3 +14,23 @@
 .col {
     padding: 5px;
 }
+
+.textarea {
+    width: 100%;
+    min-height: 100px;
+}
+
+.section-split {
+    height: 2px;
+    border-width: 0;
+    color: black;
+    background-color: black
+}
+
+.textarea {
+    border-width: 2px;
+}
+
+.comparison-box {
+    display: none;
+}

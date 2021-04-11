@@ -1,30 +1,55 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <link rel="stylesheet" href="style.css">
     <meta charset="utf-8">
     <title>Hello There!</title>
-  </head>
-  <body>
-    <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
-    <script src="./bootstrap.js"></script>
-    <h1 class="center">
-      WebAssembly Test
-    </h1>
-    <div class="center-div row">
-      <div class="col">
-      <button id="random-bytes">Give me some random bytes</button>
-      </div>
-      <div class="col">
-        <button id="biggest-signed">Give me the biggest signed i64 value</button>
-      </div>
-      <div class="col">
-        <button id="biggest-unsigned">Give me the biggest unsigned i64 value</button>
-      </div>
-      <label>
-        Number of random bytes (default 128)
-        <input type="number" id="num-bytes"/>
-      </label>
+</head>
+<body>
+<noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
+<script src="./bootstrap.js"></script>
+<h1 class="center">
+    WebAssembly Test
+</h1>
+<div class="center-div row">
+    <div class="col">
+        <div class="row">
+            <div class="col">
+                <label for="hash-input">Input to Hash:<br></label>
+                <textarea class="textarea" id="hash-input"></textarea><br>
+                <button id="hash-start">Hash</button><br><br>
+                <input type="radio" id="sha3-256" name="hash_algorithm" value="0" checked="checked">
+                <label for="sha3-256">SHA3-256</label><br>
+                <input type="radio" id="sha3-512" name="hash_algorithm" value="1">
+                <label for="sha3-512">SHA3-512</label><br>
+                <input type="radio" id="shake-128" name="hash_algorithm" value="2">
+                <label for="shake-128">SHAKE-128</label><br>
+                <input type="radio" id="shake-256" name="hash_algorithm" value="3">
+                <label for="shake-256">SHAKE-256</label><br>
+            </div>
+            <div class="col">
+                <label for="hash-reference">Result:</label><br>
+                <textarea class="textarea" id="hash-reference" disabled></textarea>
+            </div>
+            <div class="col">
+                <span>
+                <input type="checkbox" id="activate-comparison">
+                <label for="activate-comparison">Enable Comparison</label>
+                </span><br>
+                <label for="hash-comparison"></label><br>
+                <textarea class="textarea comparison-box" id="hash-comparison"></textarea>
+            </div>
+        </div>
     </div>
-  </body>
+    <hr class="section-split">
+    <div class="col">
+        <label>
+            Number of random bytes (default 128):
+            <input type="number" id="num-bytes"/><br>
+        </label><br>
+        <button id="random-bytes">Give me some random bytes</button>
+    </div>
+
+</div>
+</body>
 </html>
