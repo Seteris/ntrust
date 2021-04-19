@@ -1,10 +1,15 @@
 mod utils;
+pub mod sample;
 
 use wasm_bindgen::prelude::*;
 use tiny_keccak::Sha3;
 use tiny_keccak::Shake;
 use tiny_keccak::Hasher;
 use web_sys;
+
+use sample::params::NTRU_N as NTRU_N;
+use sample::params::NTRU_SAMPLE_FG_BYTES as NTRU_SAMPLE_FG_BYTES;
+use sample::sample_fg as sample_fg;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -99,3 +104,44 @@ pub fn shake_wrapper(input: String, target: i8) -> Vec<u8> {
     };
     result
 }
+
+
+
+
+pub struct Poly {
+    coeffs: [u16; NTRU_N],
+}
+
+impl Poly {
+    pub fn new(poly_coeffs: [u16; NTRU_N]) -> Poly {
+        Poly {
+            coeffs: poly_coeffs,
+        }
+    }
+}
+
+pub fn owcpa_keypair(mut pk: &u8,
+                     mut sk: &u8,
+                     seed: [u8; NTRU_SAMPLE_FG_BYTES]) {
+    let i: isize;
+    let mut x1: Poly = Poly::new([0; NTRU_N]);
+    let mut x2: Poly = Poly::new([0; NTRU_N]);
+    let mut x3: Poly = Poly::new([0; NTRU_N]);
+    let mut x4: Poly = Poly::new([0; NTRU_N]);
+    let mut x5: Poly = Poly::new([0; NTRU_N]);
+
+    let f: &mut Poly = &mut x1;
+    let g: &mut Poly = &mut x2;
+    let invf_mod3: &Poly = &x3;
+    let gf: &Poly = &x3;
+    let invgf: &Poly = &x4;
+    let tmp: &Poly = &x5;
+    let invh: &Poly = &x3;
+    let h: &Poly = &x3;
+
+
+    sample_fg(f,g,seed);
+    // TODO: continue port of C function
+
+}
+
