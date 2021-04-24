@@ -1,6 +1,8 @@
-/* assume 2 <= n <= 0x40000000 */
+use crate::poly_s3_inv;
 
-fn int32_MINMAX(a: &mut i32, b: &mut i32) {
+// TODO: create macro as substitute for function
+/* assume 2 <= n <= 0x40000000 */
+fn int32_minmax(a: &mut i32, b: &mut i32) {
     let ab = (*b) ^ (*a);
     let mut c = (*b as i64 - *a as i64) as i32;
     c ^= ab & (c ^ (*b));
@@ -35,13 +37,21 @@ pub fn crypto_sort_int32(array: &mut [i32], n: usize) {
         while (i + 2 * p) <= n as isize {
             for j in i..(i + p) {
                 let index = (j + p) as usize;
-                int32_MINMAX(&mut x[j as usize], &mut x[index]);
+                let mut a: i32 = x[j as usize];
+                let mut b: i32 = x[index];
+                int32_minmax(&mut a, &mut b);
+                x[j as usize] = a;
+                x[index] = b;
             }
             i += 2 * p;
         }
         for j in i..(n as isize - p) {
             let index = (j + p) as usize;
-            int32_MINMAX(&mut x[j as usize], &mut x[index]);
+            let mut a: i32 = x[j as usize];
+            let mut b: i32 = x[index];
+            int32_minmax(&mut a, &mut b);
+            x[j as usize] = a;
+            x[index] = b;
         }
 
         i = 0;
@@ -61,7 +71,7 @@ pub fn crypto_sort_int32(array: &mut [i32], n: usize) {
                     r = q;
                     while r > p {
                         let index = (j + r) as usize;
-                        int32_MINMAX(&mut a, &mut x[index]);
+                        int32_minmax(&mut a, &mut x[index]);
                         r >>= 1;
                     }
                     let index = (j + p) as usize;
@@ -80,7 +90,7 @@ pub fn crypto_sort_int32(array: &mut [i32], n: usize) {
                     r = q;
                     while r > p {
                         let index = (j + r) as usize;
-                        int32_MINMAX(&mut a, &mut x[index]);
+                        int32_minmax(&mut a, &mut x[index]);
                         r >>= 1;
                     }
                     let index = (j + p) as usize;
@@ -96,7 +106,7 @@ pub fn crypto_sort_int32(array: &mut [i32], n: usize) {
                 r = q;
                 while r > p {
                     let index = (j + r) as usize;
-                    int32_MINMAX(&mut a, &mut x[index]);
+                    int32_minmax(&mut a, &mut x[index]);
                     r >>= 1;
                 }
                 let index = (j + p) as usize;

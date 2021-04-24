@@ -1,7 +1,7 @@
-pub mod params;
-pub mod crypto_sort_int32;
-
+use crate::params;
+use crate::crypto_sort_int32;
 use crate::Poly;
+use crate::poly_mod;
 
 use params::NTRU_N as NTRU_N;
 use params::NTRU_SAMPLE_FG_BYTES as NTRU_SAMPLE_FG_BYTES;
@@ -13,35 +13,20 @@ use params::NTRU_WEIGHT as NTRU_WEIGHT;
 use params::NTRU_HRSS as NTRU_HRSS;
 use params::NTRU_HRSS as NTRU_HPS;
 
+use poly_mod::mod3 as mod3;
 
 pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_BYTES]) {
     if NTRU_HRSS {
         sample_iid_plus(f, uniformbytes);
         // Check for semantics:
-        sample_iid_plus(f, uniformbytes+NTRU_SAMPLE_IID_BYTES);
+        // sample_iid_plus(f, uniformbytes+NTRU_SAMPLE_IID_BYTES);
     }
 
     if NTRU_HPS {
         sample_iid(f, uniformbytes);
-        sample_fixed_type(g,uniformbytes+NTRU_SAMPLE_IID_BYTES);
+        // sample_fixed_type(g,uniformbytes+NTRU_SAMPLE_IID_BYTES);
     }
 
-}
-
-pub fn mod3(a: u16) -> u16 {
-    let mut r: u16;
-    let t: i16;
-    let c: i16;
-
-    r = (a >> 8) + (a & 0xff); // r mod 255 == a mod 255
-    r = (r >> 4) + (r & 0xf); // r' mod 15 == r mod 15
-    r = (r >> 2) + (r & 0x3); // r' mod 3 == r mod 3
-    r = (r >> 2) + (r & 0x3); // r' mod 3 == r mod 3
-
-    t = (r - 3) as i16;
-    c = t >> 15;
-
-    ((c as u16) & r) as u16 ^ (!c & t) as u16
 }
 
 pub fn sample_iid_plus(r: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_BYTES]) {

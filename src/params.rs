@@ -8,5 +8,10 @@ pub const NTRU_LOGQ: usize = 11;
 pub const NTRU_Q: usize = 1 << NTRU_LOGQ;
 pub const NTRU_WEIGHT: usize = NTRU_Q / 8 - 2;
 
+pub const NTRU_PACK_DEG: usize = NTRU_N - 1;
+pub const NTRU_PACK_TRINARY_BYTES: usize = (NTRU_PACK_DEG + 4) / 5;
+
+pub const NTRU_OWCPA_MSGBYTES: usize = 2 * NTRU_PACK_TRINARY_BYTES;
+
 pub const NTRU_HPS: bool = false;
 pub const NTRU_HRSS: bool = true;

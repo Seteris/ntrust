@@ -1,5 +1,13 @@
 mod utils;
-pub mod sample;
+mod sample;
+mod params;
+mod crypto_sort_int32;
+mod poly_s3_inv;
+mod pack3;
+mod poly_mod;
+mod poly;
+mod poly_rq_mul;
+mod poly_r2_inv;
 
 use wasm_bindgen::prelude::*;
 use tiny_keccak::Sha3;
@@ -7,9 +15,17 @@ use tiny_keccak::Shake;
 use tiny_keccak::Hasher;
 use web_sys;
 
-use sample::params::NTRU_N as NTRU_N;
-use sample::params::NTRU_SAMPLE_FG_BYTES as NTRU_SAMPLE_FG_BYTES;
+use params::NTRU_N as NTRU_N;
+use params::NTRU_SAMPLE_FG_BYTES as NTRU_SAMPLE_FG_BYTES;
+use params::NTRU_PACK_TRINARY_BYTES as NTRU_PACK_TRINARY_BYTES;
+use params::NTRU_HRSS as NTRU_HRSS;
+use params::NTRU_HPS as NTRU_HPS;
 use sample::sample_fg as sample_fg;
+use poly_s3_inv::poly_s3_inv as poly_s3_inv;
+use pack3::poly_s3_tobytes as poly_s3_tobytes;
+use poly::poly_z3_to_zq as poly_z3_to_zq;
+use poly_rq_mul::poly_rq_mul as poly_rq_mul;
+
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -105,43 +121,71 @@ pub fn shake_wrapper(input: String, target: i8) -> Vec<u8> {
     result
 }
 
-
-
-
 pub struct Poly {
     coeffs: [u16; NTRU_N],
 }
 
 impl Poly {
-    pub fn new(poly_coeffs: [u16; NTRU_N]) -> Poly {
+    pub fn construct() -> Poly {
         Poly {
-            coeffs: poly_coeffs,
+            coeffs: [0; NTRU_N],
+        }
+    }
+    pub fn build(value: u16) -> Poly {
+        Poly {
+            coeffs: [value; NTRU_N],
         }
     }
 }
 
-pub fn owcpa_keypair(mut pk: &u8,
-                     mut sk: &u8,
+pub fn owcpa_keypair(mut pk: &[u8],
+                     mut sk: &[u8],
                      seed: [u8; NTRU_SAMPLE_FG_BYTES]) {
     let i: isize;
-    let mut x1: Poly = Poly::new([0; NTRU_N]);
-    let mut x2: Poly = Poly::new([0; NTRU_N]);
-    let mut x3: Poly = Poly::new([0; NTRU_N]);
-    let mut x4: Poly = Poly::new([0; NTRU_N]);
-    let mut x5: Poly = Poly::new([0; NTRU_N]);
+
+    let mut x1: Poly = Poly::construct();
+    let mut x2: Poly = Poly::construct();
+    let mut x3: Poly = Poly::construct();
+    let mut x4: Poly = Poly::construct();
+    let mut x5: Poly = Poly::construct();
 
     let f: &mut Poly = &mut x1;
     let g: &mut Poly = &mut x2;
-    let invf_mod3: &Poly = &x3;
-    let gf: &Poly = &x3;
+    let invf_mod3: &mut Poly = &mut x3;
+    let gf: &mut Poly = &mut x3;
     let invgf: &Poly = &x4;
     let tmp: &Poly = &x5;
     let invh: &Poly = &x3;
     let h: &Poly = &x3;
 
 
-    sample_fg(f,g,seed);
-    // TODO: continue port of C function
+    sample_fg(f, g, seed);
 
+
+    poly_s3_inv(invf_mod3, f);
+    poly_s3_tobytes(sk, f);
+    poly_s3_tobytes(sk + NTRU_PACK_TRINARY_BYTES, invf_mod3);
+
+    poly_z3_to_zq(f);
+    poly_z3_to_zq(g);
+    if NTRU_HRSS {
+        /* g = 3*(x-1)*g */
+        for i in (NTRU_N - 1..0).step_by(-1) {
+            g.coeffs[i] = 3 * (g.coeffs[i - 1] - g.coeffs[i]);
+        }
+        g.coeffs[0] = -(3 * g.coeffs[0]);
+    }
+
+    if NTRU_HPS {
+        /* g = 3*g */
+        for i in 0..NTRU_N {
+            g.coeffs[i] = 3 * g.coeffs[i];
+        }
+    }
+
+    poly_rq_mul(gf, g, f);
+    poly_rq_inv(invgf, gf);
+
+    // TODO: continue port of C function
 }
 
