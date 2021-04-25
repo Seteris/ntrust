@@ -1,7 +1,5 @@
+use crate::params::NTRU_N;
 use crate::Poly;
-use crate::params;
-
-use params::NTRU_N as NTRU_N;
 
 pub fn mod3(a: u16) -> u16 {
     let mut r: u16;
@@ -21,6 +19,6 @@ pub fn mod3(a: u16) -> u16 {
 
 pub fn poly_mod_3_phi_n(mut r: &mut Poly) {
     for i in 0..NTRU_N {
-        r.coeffs[i] = mod3(r.coeffs[i] + 2*r.coeffs[NTRU_N-1]);
+        r.coeffs[i] = mod3(r.coeffs[i] + 2 * r.coeffs[NTRU_N - 1]);
     }
 }

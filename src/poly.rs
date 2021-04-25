@@ -1,12 +1,11 @@
+use crate::params::{NTRU_N, NTRU_Q};
 use crate::Poly;
-use crate::params;
-use crate::poly_r2_inv;
-use crate::poly_rq_mul;
+use crate::poly_rq_mul::poly_rq_mul;
+use crate::poly_r2_inv::poly_r2_inv;
 
-use params::NTRU_N as NTRU_N;
-use params::NTRU_Q as NTRU_Q;
-use poly_r2_inv::poly_r2_inv as poly_r2_inv;
-use poly_r2_inv::poly_r2_inv_to_rq_inv as poly_r2_inv_to_rq_inv;
+pub const MODQ: fn(_) -> _ = |x| {
+    x & NTRU_Q -1
+};
 
 pub fn poly_z3_to_zq(r: &mut Poly) {
     for i in 0..NTRU_N {
@@ -21,6 +20,7 @@ pub fn poly_r2_inv_to_rq_inv(r: &mut Poly, ai: Poly, a: Poly) {
     }
     let mut b = Poly::construct();
     let mut c = Poly::construct();
+    let mut s = Poly::construct();
 
     // for 0..4
     //    ai = ai * (2 - a*ai)  mod q
@@ -51,5 +51,4 @@ pub fn poly_rq_inv(r: &mut Poly, a: &mut Poly) {
     let &mut ai2: Poly = Poly::construct();
     poly_r2_inv(ai2, a);
     poly_r2_inv_to_rq_inv(r, ai2, *a);
-
 }

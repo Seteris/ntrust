@@ -8,6 +8,7 @@ mod poly_mod;
 mod poly;
 mod poly_rq_mul;
 mod poly_r2_inv;
+mod packq;
 
 use wasm_bindgen::prelude::*;
 use tiny_keccak::Sha3;
@@ -15,17 +16,13 @@ use tiny_keccak::Shake;
 use tiny_keccak::Hasher;
 use web_sys;
 
-use params::NTRU_N as NTRU_N;
-use params::NTRU_SAMPLE_FG_BYTES as NTRU_SAMPLE_FG_BYTES;
-use params::NTRU_PACK_TRINARY_BYTES as NTRU_PACK_TRINARY_BYTES;
-use params::NTRU_HRSS as NTRU_HRSS;
-use params::NTRU_HPS as NTRU_HPS;
-use sample::sample_fg as sample_fg;
-use poly_s3_inv::poly_s3_inv as poly_s3_inv;
-use pack3::poly_s3_tobytes as poly_s3_tobytes;
-use poly::poly_z3_to_zq as poly_z3_to_zq;
-use poly_rq_mul::poly_rq_mul as poly_rq_mul;
-
+use crate::params::{NTRU_N, NTRU_SAMPLE_FG_BYTES, NTRU_PACK_TRINARY_BYTES, NTRU_HRSS, NTRU_HPS};
+use crate::sample::sample_fg;
+use crate::pack3::poly_s3_tobytes;
+use crate::poly::{poly_z3_to_zq, poly_rq_inv};
+use crate::poly_s3_inv::poly_s3_inv;
+use crate::poly_rq_mul::poly_rq_mul;
+use wasm_bindgen::__rt::core::convert::TryFrom;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -141,8 +138,6 @@ impl Poly {
 pub fn owcpa_keypair(mut pk: &[u8],
                      mut sk: &[u8],
                      seed: [u8; NTRU_SAMPLE_FG_BYTES]) {
-    let i: isize;
-
     let mut x1: Poly = Poly::construct();
     let mut x2: Poly = Poly::construct();
     let mut x3: Poly = Poly::construct();
@@ -163,7 +158,7 @@ pub fn owcpa_keypair(mut pk: &[u8],
 
 
     poly_s3_inv(invf_mod3, f);
-    poly_s3_tobytes(sk, f);
+    poly_s3_tobytes(<[u8; 204]>::try_from(sk).unwrap(), f);
     poly_s3_tobytes(sk + NTRU_PACK_TRINARY_BYTES, invf_mod3);
 
     poly_z3_to_zq(f);
@@ -185,6 +180,14 @@ pub fn owcpa_keypair(mut pk: &[u8],
 
     poly_rq_mul(gf, g, f);
     poly_rq_inv(invgf, gf);
+
+    poly_rq_mul(tmp, invgf, f);
+    poly_rq_mul(invh, tmp, f);
+    poly_sq_tobytes(sk+2*NTRU_PACK_TRINARY_BYTES, invh);
+
+    poly_rq_mul(tmp, invgf, g);
+    poly_rq_mul(h, tmp, g);
+    poly_rq_sum_zero_tobytes(pk, h);
 
     // TODO: continue port of C function
 }

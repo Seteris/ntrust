@@ -1,11 +1,6 @@
-use crate::params;
+use crate::params::{NTRU_OWCPA_MSGBYTES, NTRU_PACK_DEG, NTRU_N};
+use crate::poly_mod::poly_mod_3_phi_n;
 use crate::Poly;
-use crate::poly_mod;
-
-use params::NTRU_OWCPA_MSGBYTES as NTRU_OWCPA_MSGBYTES;
-use params::NTRU_PACK_DEG as NTRU_PACK_DEG;
-use params::NTRU_N as NTRU_N;
-use poly_mod::poly_mod_3_phi_n as poly_mod_3_phi_n;
 
 pub fn poly_s3_tobytes(mut msg: [u8; NTRU_OWCPA_MSGBYTES], mut a: &Poly) {
     let c: u8;
@@ -31,7 +26,6 @@ pub fn poly_s3_tobytes(mut msg: [u8; NTRU_OWCPA_MSGBYTES], mut a: &Poly) {
 }
 
 pub fn poly_s3_frombytes(mut r: &mut Poly, msg: [u8; NTRU_OWCPA_MSGBYTES]) {
-
     let c: u8;
     for i in 0..NTRU_PACK_DEG / 5 {
         c = msg[i];
@@ -47,11 +41,11 @@ pub fn poly_s3_frombytes(mut r: &mut Poly, msg: [u8; NTRU_OWCPA_MSGBYTES]) {
         c = msg[i];
         let mut j = 0;
         while 5 * i + j < NTRU_PACK_DEG {
-            r.coeffs[5*i+j] = c as u16;
+            r.coeffs[5 * i + j] = c as u16;
             c = c * 171 >> 9;
             j += 1;
         }
     }
-    r.coeffs[NTRU_N- 1] = 0;
+    r.coeffs[NTRU_N - 1] = 0;
     poly_mod_3_phi_n(r);
 }

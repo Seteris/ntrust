@@ -1,7 +1,5 @@
+use crate::params::NTRU_N;
 use crate::Poly;
-use crate::params;
-
-use params::NTRU_N as NTRU_N;
 
 fn both_negative_mask(x: i16, y: i16) -> i16 {
     (x & y) >> 15
@@ -16,6 +14,7 @@ pub fn poly_r2_inv(r: &mut Poly, a: &mut Poly) {
     let mut delta: i16 = 1;
     let sign: i16;
     let swap: i16;
+    let mut t: i16;
 
     for i in 0..NTRU_N - 1 {
         g.coeffs[NTRU_N - 2 - i] = (a.coeffs[i] ^ a.coeffs[NTRU_N - 1]) & 1;

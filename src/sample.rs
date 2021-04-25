@@ -1,35 +1,20 @@
-use crate::params;
-use crate::crypto_sort_int32;
-use crate::Poly;
-use crate::poly_mod;
-
-use params::NTRU_N as NTRU_N;
-use params::NTRU_SAMPLE_FG_BYTES as NTRU_SAMPLE_FG_BYTES;
-use params::NTRU_SAMPLE_FT_BYTES as NTRU_SAMPLE_FT_BYTES;
-use params::NTRU_SAMPLE_IID_BYTES as NTRU_SAMPLE_IID_BYTES;
-
-use params::NTRU_WEIGHT as NTRU_WEIGHT;
-
-use params::NTRU_HRSS as NTRU_HRSS;
-use params::NTRU_HRSS as NTRU_HPS;
-
-use poly_mod::mod3 as mod3;
+use crate::params::{NTRU_SAMPLE_FG_BYTES, NTRU_HRSS, NTRU_HPS, NTRU_N, NTRU_SAMPLE_FT_BYTES, NTRU_WEIGHT, NTRU_SAMPLE_IID_BYTES};
+use crate::{Poly, crypto_sort_int32};
+use crate::poly_mod::mod3;
 
 pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_BYTES]) {
     if NTRU_HRSS {
         sample_iid_plus(f, uniformbytes);
-        // Check for semantics:
-        // sample_iid_plus(f, uniformbytes+NTRU_SAMPLE_IID_BYTES);
+        sample_iid_plus(f, uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
     }
 
     if NTRU_HPS {
         sample_iid(f, uniformbytes);
         // sample_fixed_type(g,uniformbytes+NTRU_SAMPLE_IID_BYTES);
     }
-
 }
 
-pub fn sample_iid_plus(r: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_BYTES]) {
+pub fn sample_iid_plus(r: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_IID_BYTES]) {
     /* Sample r using sample then conditionally flip    */
     /* signs of even index coefficients so that <x*r, r> >= 0.      */
 
@@ -93,7 +78,7 @@ fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
     }
 
     for i in (NTRU_WEIGHT / 2)..NTRU_WEIGHT {
-        s[i] |=  2;
+        s[i] |= 2;
     }
     crypto_sort_int32::crypto_sort_int32(&mut s, NTRU_N - 1);
 
