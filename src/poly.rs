@@ -3,13 +3,13 @@ use crate::Poly;
 use crate::poly_rq_mul::poly_rq_mul;
 use crate::poly_r2_inv::poly_r2_inv;
 
-pub const MODQ: fn(_) -> _ = |x| {
-    x & NTRU_Q -1
+pub const MODQ: fn(u16) -> u16 = |x| {
+    x & (NTRU_Q - 1) as u16
 };
 
 pub fn poly_z3_to_zq(r: &mut Poly) {
     for i in 0..NTRU_N {
-        r.coeffs[i] = r.coeffs[i] | (0 - (r.coeffs[i] >> 1)) & (NTRU_Q - 1);
+        r.coeffs[i] = r.coeffs[i] | (0 - (r.coeffs[i] >> 1)) & (NTRU_Q - 1) as u16;
     }
 }
 
@@ -47,8 +47,8 @@ pub fn poly_r2_inv_to_rq_inv(r: &mut Poly, ai: Poly, a: Poly) {
     poly_rq_mul(r, &c, &s); // r = s*c
 }
 
-pub fn poly_rq_inv(r: &mut Poly, a: &mut Poly) {
-    let &mut ai2: Poly = Poly::construct();
-    poly_r2_inv(ai2, a);
-    poly_r2_inv_to_rq_inv(r, ai2, *a);
+pub fn poly_rq_inv(r: &mut Poly, mut a: Poly) {
+    let mut ai2: Poly = Poly::construct();
+    poly_r2_inv(&mut ai2, &mut a);
+    poly_r2_inv_to_rq_inv(r, ai2, a);
 }

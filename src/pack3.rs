@@ -2,7 +2,7 @@ use crate::params::{NTRU_OWCPA_MSGBYTES, NTRU_PACK_DEG, NTRU_N};
 use crate::poly_mod::poly_mod_3_phi_n;
 use crate::Poly;
 
-pub fn poly_s3_tobytes(mut msg: [u8; NTRU_OWCPA_MSGBYTES], mut a: &Poly) {
+pub fn poly_s3_tobytes(msg: &mut [u8; NTRU_OWCPA_MSGBYTES], mut a: &Poly) {
     let c: u8;
     for i in 0..NTRU_PACK_DEG / 5 {
         c = (a.coeffs[5 * i + 4] & 255) as u8;

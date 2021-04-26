@@ -1,6 +1,4 @@
-use crate::poly_s3_inv;
-
-// TODO: create macro as substitute for function
+// TODO: create macro/closure as substitute for function
 /* assume 2 <= n <= 0x40000000 */
 fn int32_minmax(a: &mut i32, b: &mut i32) {
     let ab = (*b) ^ (*a);

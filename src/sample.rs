@@ -1,26 +1,39 @@
 use crate::params::{NTRU_SAMPLE_FG_BYTES, NTRU_HRSS, NTRU_HPS, NTRU_N, NTRU_SAMPLE_FT_BYTES, NTRU_WEIGHT, NTRU_SAMPLE_IID_BYTES};
 use crate::{Poly, crypto_sort_int32};
-use crate::poly_mod::mod3;
+use crate::sample_iid::sample_iid;
+use std::convert::TryInto;
 
 pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_BYTES]) {
     if NTRU_HRSS {
-        sample_iid_plus(f, uniformbytes);
-        sample_iid_plus(f, uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
+        let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = uniformbytes[..NTRU_N]
+            .try_into()
+            .expect("Slice has incorrect length.");
+        sample_iid_plus(f, bytes);
+        bytes = uniformbytes[NTRU_SAMPLE_IID_BYTES..]
+            .try_into()
+            .expect("Slice has incorrect length.");
+        sample_iid_plus(f, bytes);
     }
 
     if NTRU_HPS {
-        sample_iid(f, uniformbytes);
-        // sample_fixed_type(g,uniformbytes+NTRU_SAMPLE_IID_BYTES);
+        let bytes: [u8; NTRU_SAMPLE_IID_BYTES] = uniformbytes[..NTRU_N]
+            .try_into()
+            .expect("Slice has incorrect length.");
+        sample_iid(f, bytes);
+        let fixed_type_bytes = uniformbytes[NTRU_SAMPLE_IID_BYTES..]
+            .try_into()
+            .expect("Slice has incorrect length.");
+        sample_fixed_type(g,fixed_type_bytes);
     }
 }
 
 pub fn sample_iid_plus(r: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_IID_BYTES]) {
+
     /* Sample r using sample then conditionally flip    */
     /* signs of even index coefficients so that <x*r, r> >= 0.      */
 
     let i: isize;
     let mut s: u16 = 0;
-
     sample_iid(r, uniformbytes);
 
     /* Map {0,1,2} -> {0, 1, 2^16 - 1} */
@@ -47,13 +60,6 @@ pub fn sample_iid_plus(r: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_IID_BYTES]) 
     }
 }
 
-fn sample_iid(r: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_BYTES]) {
-    /* {0,1,...,255} -> {0,1,2}; Pr[0] = 86/256, Pr[1] = Pr[-1] = 85/256 */
-    for i in 0..(NTRU_N - 1) {
-        r.coeffs[i] = mod3(uniformbytes[i] as u16) as u16;
-    }
-    r.coeffs[NTRU_N - 1] = 0;
-}
 
 fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
     // Assumes NTRU_SAMPLE_FT_BYTES = ceil(30*(n-1)/8)

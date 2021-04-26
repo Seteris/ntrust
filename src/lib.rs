@@ -9,6 +9,7 @@ mod poly;
 mod poly_rq_mul;
 mod poly_r2_inv;
 mod packq;
+mod sample_iid;
 
 use wasm_bindgen::prelude::*;
 use tiny_keccak::Sha3;
@@ -16,13 +17,14 @@ use tiny_keccak::Shake;
 use tiny_keccak::Hasher;
 use web_sys;
 
-use crate::params::{NTRU_N, NTRU_SAMPLE_FG_BYTES, NTRU_PACK_TRINARY_BYTES, NTRU_HRSS, NTRU_HPS};
+use crate::params::{NTRU_N, NTRU_SAMPLE_FG_BYTES, NTRU_PACK_TRINARY_BYTES, NTRU_HRSS, NTRU_HPS, NTRU_OWCPA_MSGBYTES};
 use crate::sample::sample_fg;
 use crate::pack3::poly_s3_tobytes;
 use crate::poly::{poly_z3_to_zq, poly_rq_inv};
 use crate::poly_s3_inv::poly_s3_inv;
 use crate::poly_rq_mul::poly_rq_mul;
-use wasm_bindgen::__rt::core::convert::TryFrom;
+use crate::packq::{poly_sq_tobytes, poly_rq_sum_zero_tobytes};
+use std::convert::TryInto;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -156,19 +158,25 @@ pub fn owcpa_keypair(mut pk: &[u8],
 
     sample_fg(f, g, seed);
 
-
     poly_s3_inv(invf_mod3, f);
-    poly_s3_tobytes(<[u8; 204]>::try_from(sk).unwrap(), f);
-    poly_s3_tobytes(sk + NTRU_PACK_TRINARY_BYTES, invf_mod3);
+    let mut sk_bytes: [u8; NTRU_OWCPA_MSGBYTES] = sk[..NTRU_OWCPA_MSGBYTES]
+        .try_into()
+        .expect("Slice has incorrect length.");
+    poly_s3_tobytes(&mut sk_bytes, f);
+    let sk_msgbytes = sk[NTRU_OWCPA_MSGBYTES..NTRU_OWCPA_MSGBYTES * 2]
+        .try_into()
+        .expect("Slice has incorrect length.");
+    poly_s3_tobytes(sk_msgbytes, invf_mod3);
 
+    /* Lift coeffs of f and g from Z_p to Z_q */
     poly_z3_to_zq(f);
     poly_z3_to_zq(g);
     if NTRU_HRSS {
         /* g = 3*(x-1)*g */
-        for i in (NTRU_N - 1..0).step_by(-1) {
+        for i in (NTRU_N - 1..0).step_by(0 - 1) {
             g.coeffs[i] = 3 * (g.coeffs[i - 1] - g.coeffs[i]);
         }
-        g.coeffs[0] = -(3 * g.coeffs[0]);
+        g.coeffs[0] = 0 - (3 * g.coeffs[0]);
     }
 
     if NTRU_HPS {
@@ -179,16 +187,18 @@ pub fn owcpa_keypair(mut pk: &[u8],
     }
 
     poly_rq_mul(gf, g, f);
+
     poly_rq_inv(invgf, gf);
 
     poly_rq_mul(tmp, invgf, f);
     poly_rq_mul(invh, tmp, f);
-    poly_sq_tobytes(sk+2*NTRU_PACK_TRINARY_BYTES, invh);
+    let mut sk_pack_trinary_bytes: [u8] = sk[2 * NTRU_PACK_TRINARY_BYTES..]
+        .try_into()
+        .expect("Slice has incorrect length.");
+    poly_sq_tobytes(&mut sk_pack_trinary_bytes, invh);
 
     poly_rq_mul(tmp, invgf, g);
     poly_rq_mul(h, tmp, g);
     poly_rq_sum_zero_tobytes(pk, h);
-
-    // TODO: continue port of C function
 }
 
