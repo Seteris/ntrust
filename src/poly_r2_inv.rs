@@ -5,15 +5,15 @@ fn both_negative_mask(x: i16, y: i16) -> i16 {
     (x & y) >> 15
 }
 
-pub fn poly_r2_inv(r: &mut Poly, a: &mut Poly) {
-    let mut v = Poly::construct();
-    let mut w = Poly::construct();
+pub fn poly_r2_inv(r: &mut Poly, a: &Poly) {
+    let mut v = Poly::new();
+    let mut w = Poly::new();
     let mut f = Poly::build(1);
-    let mut g = Poly::construct();
+    let mut g = Poly::new();
 
     let mut delta: i16 = 1;
-    let sign: i16;
-    let swap: i16;
+    let mut sign: i16;
+    let mut swap: i16;
     let mut t: i16;
 
     for i in 0..NTRU_N - 1 {
@@ -22,7 +22,7 @@ pub fn poly_r2_inv(r: &mut Poly, a: &mut Poly) {
     g.coeffs[NTRU_N - 1] = 0;
 
     for _ in 0..2 * (NTRU_N - 1) - 1 {
-        for i in (NTRU_N - 1..0).step_by(0 - 1) {
+        for i in (1..NTRU_N).rev() {
             v.coeffs[i] = v.coeffs[i - 1];
         }
         v.coeffs[0] = 0;

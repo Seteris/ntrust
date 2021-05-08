@@ -32,7 +32,6 @@ pub fn sample_iid_plus(r: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_IID_BYTES]) 
     /* Sample r using sample then conditionally flip    */
     /* signs of even index coefficients so that <x*r, r> >= 0.      */
 
-    let i: isize;
     let mut s: u16 = 0;
     sample_iid(r, uniformbytes);
 
@@ -65,7 +64,7 @@ fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
     // Assumes NTRU_SAMPLE_FT_BYTES = ceil(30*(n-1)/8)
 
     let mut s: [i32; NTRU_N - 1] = [0; NTRU_N - 1];
-    let mut i = 0;
+    let i;
 
     for i in 0..((NTRU_N - 1) / 4) {
         s[4 * i + 0] = ((u[15 * i + 0] << 2) + (u[15 * i + 1] << 10) + (u[15 * i + 2] << 18) + ((u[15 * i + 3]) << 26)) as i32;

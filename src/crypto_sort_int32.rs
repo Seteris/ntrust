@@ -23,7 +23,7 @@ pub fn crypto_sort_int32(array: &mut [i32], n: usize) {
     let mut r: isize;
     let mut i: isize;
     let mut j: isize;
-    let mut x = array;
+    let x = array;
 
     while top < (n as isize - top) {
         top += top;

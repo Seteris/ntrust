@@ -13,14 +13,14 @@ pub fn poly_z3_to_zq(r: &mut Poly) {
     }
 }
 
-pub fn poly_r2_inv_to_rq_inv(r: &mut Poly, ai: Poly, a: Poly) {
+pub fn poly_r2_inv_to_rq_inv(r: &mut Poly, ai: Poly, a: &Poly) {
     // TODO: change to compiler error macro
     if NTRU_Q <= 256 || NTRU_Q >= 65536 {
         panic!("poly_R2_inv_to_Rq_inv in poly.c assumes 256 < q < 65536");
     }
-    let mut b = Poly::construct();
-    let mut c = Poly::construct();
-    let mut s = Poly::construct();
+    let mut b = Poly::new();
+    let mut c = Poly::new();
+    let mut s = Poly::new();
 
     // for 0..4
     //    ai = ai * (2 - a*ai)  mod q
@@ -47,8 +47,8 @@ pub fn poly_r2_inv_to_rq_inv(r: &mut Poly, ai: Poly, a: Poly) {
     poly_rq_mul(r, &c, &s); // r = s*c
 }
 
-pub fn poly_rq_inv(r: &mut Poly, mut a: Poly) {
-    let mut ai2: Poly = Poly::construct();
-    poly_r2_inv(&mut ai2, &mut a);
+pub fn poly_rq_inv(r: &mut Poly, a: &Poly) {
+    let mut ai2: Poly = Poly::new();
+    poly_r2_inv(&mut ai2, a);
     poly_r2_inv_to_rq_inv(r, ai2, a);
 }

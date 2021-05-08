@@ -22,9 +22,9 @@ pub fn poly_s3_inv(r: &mut Poly, a: &mut Poly) {
     let mut t: i16;
 
     let mut f: Poly = Poly::build(1);
-    let mut g: Poly = Poly::construct();
-    let mut v: Poly = Poly::construct();
-    let mut w: Poly = Poly::construct();
+    let mut g: Poly = Poly::new();
+    let mut v: Poly = Poly::new();
+    let mut w: Poly = Poly::new();
     w.coeffs[0] = 1;
 
     for i in 0..(NTRU_N - 1) {

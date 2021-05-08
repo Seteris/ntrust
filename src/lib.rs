@@ -10,6 +10,7 @@ mod poly_rq_mul;
 mod poly_r2_inv;
 mod packq;
 mod sample_iid;
+mod api;
 
 use wasm_bindgen::prelude::*;
 use tiny_keccak::Sha3;
@@ -25,6 +26,7 @@ use crate::poly_s3_inv::poly_s3_inv;
 use crate::poly_rq_mul::poly_rq_mul;
 use crate::packq::{poly_sq_tobytes, poly_rq_sum_zero_tobytes};
 use std::convert::TryInto;
+use crate::api::{CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES};
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -125,7 +127,7 @@ pub struct Poly {
 }
 
 impl Poly {
-    pub fn construct() -> Poly {
+    pub fn new() -> Poly {
         Poly {
             coeffs: [0; NTRU_N],
         }
@@ -137,23 +139,22 @@ impl Poly {
     }
 }
 
-pub fn owcpa_keypair(mut pk: &[u8],
-                     mut sk: &[u8],
+pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
+                     sk: &mut [u8; CRYPTO_SECRETKEYBYTES],
                      seed: [u8; NTRU_SAMPLE_FG_BYTES]) {
-    let mut x1: Poly = Poly::construct();
-    let mut x2: Poly = Poly::construct();
-    let mut x3: Poly = Poly::construct();
-    let mut x4: Poly = Poly::construct();
-    let mut x5: Poly = Poly::construct();
 
-    let f: &mut Poly = &mut x1;
-    let g: &mut Poly = &mut x2;
-    let invf_mod3: &mut Poly = &mut x3;
-    let gf: &mut Poly = &mut x3;
-    let invgf: &Poly = &x4;
-    let tmp: &Poly = &x5;
-    let invh: &Poly = &x3;
-    let h: &Poly = &x3;
+    let mut x3: Poly = Poly::new();
+
+    let f: &mut Poly = &mut Poly::new();
+    let g: &mut Poly = &mut Poly::new();
+    let invf_mod3: &mut Poly = &mut Poly::new();
+
+    let invgf: &mut Poly = &mut Poly::new();
+    let tmp: &mut Poly = &mut Poly::new();
+
+    // let gf: &mut Poly = &mut x3;
+    // let invh: &mut Poly = &mut x3;
+    // let h: &mut Poly = &mut x3;
 
 
     sample_fg(f, g, seed);
@@ -163,17 +164,19 @@ pub fn owcpa_keypair(mut pk: &[u8],
         .try_into()
         .expect("Slice has incorrect length.");
     poly_s3_tobytes(&mut sk_bytes, f);
-    let sk_msgbytes = sk[NTRU_OWCPA_MSGBYTES..NTRU_OWCPA_MSGBYTES * 2]
+    let mut sk_msgbytes = sk[NTRU_OWCPA_MSGBYTES..NTRU_OWCPA_MSGBYTES * 2]
         .try_into()
         .expect("Slice has incorrect length.");
-    poly_s3_tobytes(sk_msgbytes, invf_mod3);
+    poly_s3_tobytes(&mut sk_msgbytes, invf_mod3);
 
     /* Lift coeffs of f and g from Z_p to Z_q */
     poly_z3_to_zq(f);
     poly_z3_to_zq(g);
     if NTRU_HRSS {
         /* g = 3*(x-1)*g */
-        for i in (NTRU_N - 1..0).step_by(0 - 1) {
+        // C implementation loops from [NTRU_N - 1;0)
+        // .rev() reverses the iterator AFTER the range has been evaluated
+        for i in (1..NTRU_N).rev() {
             g.coeffs[i] = 3 * (g.coeffs[i - 1] - g.coeffs[i]);
         }
         g.coeffs[0] = 0 - (3 * g.coeffs[0]);
@@ -186,19 +189,20 @@ pub fn owcpa_keypair(mut pk: &[u8],
         }
     }
 
-    poly_rq_mul(gf, g, f);
+    poly_rq_mul(&mut x3, g, f);
 
-    poly_rq_inv(invgf, gf);
+    poly_rq_inv(invgf, &mut x3);
 
     poly_rq_mul(tmp, invgf, f);
-    poly_rq_mul(invh, tmp, f);
-    let mut sk_pack_trinary_bytes: [u8] = sk[2 * NTRU_PACK_TRINARY_BYTES..]
+    poly_rq_mul(&mut x3, tmp, f);
+    const SK_PACK_TRINARY_BYTE_SIZE: usize = CRYPTO_SECRETKEYBYTES - 2 * NTRU_PACK_TRINARY_BYTES;
+    let mut sk_pack_trinary_bytes: [u8; SK_PACK_TRINARY_BYTE_SIZE] = sk[2 * NTRU_PACK_TRINARY_BYTES..]
         .try_into()
         .expect("Slice has incorrect length.");
-    poly_sq_tobytes(&mut sk_pack_trinary_bytes, invh);
+    poly_sq_tobytes(&mut sk_pack_trinary_bytes, &mut x3);
 
     poly_rq_mul(tmp, invgf, g);
-    poly_rq_mul(h, tmp, g);
-    poly_rq_sum_zero_tobytes(pk, h);
+    poly_rq_mul(&mut x3, tmp, g);
+    poly_rq_sum_zero_tobytes(pk, &mut x3);
 }
 
