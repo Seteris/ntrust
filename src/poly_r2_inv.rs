@@ -1,5 +1,5 @@
 use crate::params::NTRU_N;
-use crate::Poly;
+use crate::poly::Poly;
 
 fn both_negative_mask(x: i16, y: i16) -> i16 {
     (x & y) >> 15

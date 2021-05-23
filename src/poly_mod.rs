@@ -1,5 +1,5 @@
 use crate::params::NTRU_N;
-use crate::Poly;
+use crate::poly::Poly;
 
 pub fn mod3(a: u16) -> u16 {
     let mut r: u16;

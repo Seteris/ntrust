@@ -1,5 +1,5 @@
 use crate::params::NTRU_N;
-use crate::Poly;
+use crate::poly::Poly;
 
 pub fn poly_rq_mul(r: &mut Poly, a: &Poly, b: &Poly) {
     for k in 0..NTRU_N {

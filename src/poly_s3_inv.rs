@@ -1,5 +1,5 @@
 use crate::params::NTRU_N;
-use crate::Poly;
+use crate::poly::Poly;
 
 /* a between 0 and 9 */
 fn mod3(a: &mut u16) -> u16 {

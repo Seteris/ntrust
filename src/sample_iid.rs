@@ -1,5 +1,5 @@
 use crate::params::{NTRU_N, NTRU_SAMPLE_IID_BYTES};
-use crate::Poly;
+use crate::poly::Poly;
 use crate::poly_mod::mod3;
 
 pub fn sample_iid(r: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_IID_BYTES]) {

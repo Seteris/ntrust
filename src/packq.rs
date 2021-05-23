@@ -1,6 +1,6 @@
 use crate::params::NTRU_PACK_DEG;
 use crate::poly::MODQ;
-use crate::Poly;
+use crate::poly::Poly;
 
 pub fn poly_sq_tobytes(r: &mut [u8],
                        a: &mut Poly) {

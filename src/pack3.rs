@@ -1,6 +1,6 @@
-use crate::params::{NTRU_OWCPA_MSGBYTES, NTRU_PACK_DEG, NTRU_N};
+use crate::params::{NTRU_N, NTRU_OWCPA_MSGBYTES, NTRU_PACK_DEG};
+use crate::poly::Poly;
 use crate::poly_mod::poly_mod_3_phi_n;
-use crate::Poly;
 
 pub fn poly_s3_tobytes(msg: &mut [u8; NTRU_OWCPA_MSGBYTES], a: &Poly) {
     let mut c: u8;

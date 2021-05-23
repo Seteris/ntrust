@@ -1,7 +1,23 @@
 use crate::params::{NTRU_N, NTRU_Q};
-use crate::Poly;
-use crate::poly_rq_mul::poly_rq_mul;
 use crate::poly_r2_inv::poly_r2_inv;
+use crate::poly_rq_mul::poly_rq_mul;
+
+pub struct Poly {
+    pub coeffs: [u16; NTRU_N],
+}
+
+impl Poly {
+    pub fn new() -> Poly {
+        Poly {
+            coeffs: [0; NTRU_N],
+        }
+    }
+    pub fn build(value: u16) -> Poly {
+        Poly {
+            coeffs: [value; NTRU_N],
+        }
+    }
+}
 
 pub const MODQ: fn(u16) -> u16 = |x| {
     x & (NTRU_Q - 1) as u16

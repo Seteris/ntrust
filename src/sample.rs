@@ -1,7 +1,9 @@
-use crate::params::{NTRU_SAMPLE_FG_BYTES, NTRU_HRSS, NTRU_HPS, NTRU_N, NTRU_SAMPLE_FT_BYTES, NTRU_WEIGHT, NTRU_SAMPLE_IID_BYTES};
-use crate::{Poly, crypto_sort_int32};
-use crate::sample_iid::sample_iid;
 use std::convert::TryInto;
+
+use crate::crypto_sort_int32;
+use crate::params::{NTRU_HPS, NTRU_HRSS, NTRU_N, NTRU_SAMPLE_FG_BYTES, NTRU_SAMPLE_FT_BYTES, NTRU_SAMPLE_IID_BYTES, NTRU_WEIGHT};
+use crate::poly::Poly;
+use crate::sample_iid::sample_iid;
 
 pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_BYTES]) {
     if NTRU_HRSS {
@@ -23,12 +25,11 @@ pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_B
         let fixed_type_bytes = uniformbytes[NTRU_SAMPLE_IID_BYTES..]
             .try_into()
             .expect("Slice has incorrect length.");
-        sample_fixed_type(g,fixed_type_bytes);
+        sample_fixed_type(g, fixed_type_bytes);
     }
 }
 
 pub fn sample_iid_plus(r: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_IID_BYTES]) {
-
     /* Sample r using sample then conditionally flip    */
     /* signs of even index coefficients so that <x*r, r> >= 0.      */
 
