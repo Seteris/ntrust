@@ -1,4 +1,4 @@
-use crate::params::NTRU_PACK_DEG;
+use crate::params::{NTRU_N, NTRU_PACK_DEG};
 use crate::poly::MODQ;
 use crate::poly::Poly;
 
@@ -55,6 +55,46 @@ pub fn poly_sq_tobytes(r: &mut [u8],
     }
 }
 
+pub fn poly_sq_frombytes(r: &mut Poly, a: &mut [u8]) {
+    let i = (NTRU_PACK_DEG / 8) - 1;
+    for i in 0..(NTRU_PACK_DEG / 8) {
+        r.coeffs[8 * i + 0] = ((a[11 * i + 0] >> 0) | ((a[11 * i + 1] & 0x07) << 8)) as u16;
+        r.coeffs[8 * i + 1] = ((a[11 * i + 1] >> 3) | ((a[11 * i + 2] & 0x3f) << 5)) as u16;
+        r.coeffs[8 * i + 2] = ((a[11 * i + 2] >> 6) | ((a[11 * i + 3] & 0xff) << 2) | ((a[11 * i + 4] & 0x01) << 10)) as u16;
+        r.coeffs[8 * i + 3] = ((a[11 * i + 4] >> 1) | ((a[11 * i + 5] & 0x0f) << 7)) as u16;
+        r.coeffs[8 * i + 4] = ((a[11 * i + 5] >> 4) | ((a[11 * i + 6] & 0x7f) << 4)) as u16;
+        r.coeffs[8 * i + 5] = ((a[11 * i + 6] >> 7) | ((a[11 * i + 7] & 0xff) << 1) | ((a[11 * i + 8] & 0x03) << 9)) as u16;
+        r.coeffs[8 * i + 6] = ((a[11 * i + 8] >> 2) | ((a[11 * i + 9] & 0x1f) << 6)) as u16;
+        r.coeffs[8 * i + 7] = ((a[11 * i + 9] >> 5) | ((a[11 * i + 10] & 0xff) << 3)) as u16;
+    }
+    match NTRU_PACK_DEG & 0x07 {
+        // cases 0 and 6 are impossible since 2 generates (Z/n)* and
+        // p mod 8 in {1, 7} implies that 2 is a quadratic residue.
+        4 => {
+            r.coeffs[8 * i + 0] = ((a[11 * i + 0] >> 0) | ((a[11 * i + 1] & 0x07) << 8)) as u16;
+            r.coeffs[8 * i + 1] = ((a[11 * i + 1] >> 3) | ((a[11 * i + 2] & 0x3f) << 5)) as u16;
+            r.coeffs[8 * i + 2] = ((a[11 * i + 2] >> 6) | ((a[11 * i + 3] & 0xff) << 2) | ((a[11 * i + 4] & 0x01) << 10)) as u16;
+            r.coeffs[8 * i + 3] = ((a[11 * i + 4] >> 1) | ((a[11 * i + 5] & 0x0f) << 7)) as u16;
+        }
+        2 => {
+            r.coeffs[8 * i + 0] = ((a[11 * i + 0] >> 0) | ((a[11 * i + 1] & 0x07) << 8)) as u16;
+            r.coeffs[8 * i + 1] = ((a[11 * i + 1] >> 3) | ((a[11 * i + 2] & 0x3f) << 5)) as u16;
+        }
+        _ => {}
+    }
+    r.coeffs[NTRU_N - 1] = 0;
+}
+
 pub fn poly_rq_sum_zero_tobytes(r: &mut [u8], a: &mut Poly) {
     poly_sq_tobytes(r, a);
+}
+
+pub fn poly_rq_sum_zero_frombytes(r: &mut Poly, a: &mut [u8]) {
+    poly_sq_frombytes(r, a);
+
+    /* Set r[n-1] so that the sum of coefficients is zero mod q */
+    r.coeffs[NTRU_N - 1] = 0;
+    for i in 0..NTRU_PACK_DEG {
+        r.coeffs[NTRU_N - 1] -= r.coeffs[i];
+    }
 }

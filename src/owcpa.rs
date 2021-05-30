@@ -1,14 +1,15 @@
 use std::convert::TryInto;
 
-use crate::api::{CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES};
+use crate::api::{CRYPTO_CIPHERTEXTBYTES, CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES};
 use crate::pack3::poly_s3_tobytes;
-use crate::packq::{poly_rq_sum_zero_tobytes, poly_sq_tobytes};
+use crate::packq::{poly_rq_sum_zero_frombytes, poly_rq_sum_zero_tobytes, poly_sq_tobytes};
 use crate::params::{NTRU_HPS, NTRU_HRSS, NTRU_N, NTRU_OWCPA_MSGBYTES, NTRU_PACK_TRINARY_BYTES, NTRU_SAMPLE_FG_BYTES};
 use crate::poly::{poly_rq_inv, poly_z3_to_zq};
 use crate::poly::Poly;
 use crate::poly_rq_mul::poly_rq_mul;
 use crate::poly_s3_inv::poly_s3_inv;
 use crate::sample::sample_fg;
+use crate::poly_lift::poly_lift;
 
 pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
                      sk: &mut [u8; CRYPTO_SECRETKEYBYTES],
@@ -74,4 +75,25 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
     poly_rq_mul(tmp, invgf, g);
     poly_rq_mul(&mut x3, tmp, g);
     poly_rq_sum_zero_tobytes(pk, &mut x3);
+}
+
+pub fn owcpa_enc(c: &mut [u8; CRYPTO_CIPHERTEXTBYTES],
+                 r: &mut Poly,
+                 m: &mut Poly,
+                 pk: &mut [u8; CRYPTO_PUBLICKEYBYTES]) {
+    let x1: &mut Poly = &mut Poly::new();
+    let x2: &mut Poly = &mut Poly::new();
+
+    // poly *h = &x1, *liftm = &x1;
+    // poly *ct = &x2;
+
+    poly_rq_sum_zero_frombytes(x1, pk);
+
+    poly_rq_mul(x2, r, x1);
+
+    poly_lift(x1, m);
+    for i in 0..NTRU_N {
+        x2.coeffs[i] = x2.coeffs[i] + x1.coeffs[i];
+    }
+    poly_rq_sum_zero_tobytes(c, x2);
 }
