@@ -10,6 +10,12 @@ use crate::poly_rq_mul::poly_rq_mul;
 use crate::poly_s3_inv::poly_s3_inv;
 use crate::sample::sample_fg;
 
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( $t )* ).into());
+    }
+}
+
 pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
                      sk: &mut [u8; CRYPTO_SECRETKEYBYTES],
                      seed: [u8; NTRU_SAMPLE_FG_BYTES]) {
@@ -21,14 +27,12 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
 
     let invgf: &mut Poly = &mut Poly::new();
     let tmp: &mut Poly = &mut Poly::new();
-
     // let gf: &mut Poly = &mut x3;
     // let invh: &mut Poly = &mut x3;
     // let h: &mut Poly = &mut x3;
 
 
     sample_fg(f, g, seed);
-
     poly_s3_inv(invf_mod3, f);
     let mut sk_bytes: [u8; NTRU_OWCPA_MSGBYTES] = sk[..NTRU_OWCPA_MSGBYTES]
         .try_into()

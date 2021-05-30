@@ -60,7 +60,7 @@ pub fn sample_iid_plus(r: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_IID_BYTES]) 
     }
 }
 
-
+#[allow(arithmetic_overflow)]
 fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
     // Assumes NTRU_SAMPLE_FT_BYTES = ceil(30*(n-1)/8)
 
