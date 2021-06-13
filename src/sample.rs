@@ -68,6 +68,7 @@ fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
     let i;
 
     for i in 0..((NTRU_N - 1) / 4) {
+        // TODO: cast last operand of assignments to rust equivalent of uint32_t, cast operands to i32
         s[4 * i + 0] = ((u[15 * i + 0] << 2) + (u[15 * i + 1] << 10) + (u[15 * i + 2] << 18) + ((u[15 * i + 3]) << 26)) as i32;
         s[4 * i + 1] = (((u[15 * i + 3] & 0xc0) >> 4) + (u[15 * i + 4] << 4) + (u[15 * i + 5] << 12) + (u[15 * i + 6] << 20) + ((u[15 * i + 7]) << 28)) as i32;
         s[4 * i + 2] = (((u[15 * i + 7] & 0xf0) >> 2) + (u[15 * i + 8] << 6) + (u[15 * i + 9] << 14) + (u[15 * i + 10] << 22) + ((u[15 * i + 11]) << 30)) as i32;
