@@ -1,8 +1,13 @@
 // defines:
 pub const NTRU_N: usize = 509;
 pub const NTRU_SAMPLE_IID_BYTES: usize = NTRU_N - 1;
-// TODO: Temporary NTRU_SAMPLE_FT_BYTES, needs to be ceiled for sample_fixed_type() in sample.rs
-pub const NTRU_SAMPLE_FT_BYTES: usize = ((30 * (NTRU_N - 1) + 7) / 8) + 1;
+pub const NTRU_SAMPLE_FT_BYTES: usize = (30 * (NTRU_N - 1) + 7) / 8;
+// if ((30 * (NTRU_N - 1) + 7) % 8) != 0
+// {
+//     (30 * (NTRU_N - 1) + 7) / 8 + 1 + 1
+// } else {
+//     (30 * (NTRU_N - 1) + 7) / 8 + 1
+// };
 pub const NTRU_SAMPLE_FG_BYTES: usize = NTRU_SAMPLE_IID_BYTES + NTRU_SAMPLE_FT_BYTES;
 
 pub const NTRU_LOGQ: usize = 11;

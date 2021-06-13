@@ -7,24 +7,19 @@ use crate::sample_iid::sample_iid;
 
 pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_BYTES]) {
     if NTRU_HRSS {
-        let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = uniformbytes[..NTRU_N]
-            .try_into()
-            .expect("Slice has incorrect length.");
+        let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0u8; NTRU_SAMPLE_IID_BYTES];
+        bytes.copy_from_slice(&uniformbytes[..NTRU_N]);
         sample_iid_plus(f, bytes);
-        bytes = uniformbytes[NTRU_SAMPLE_IID_BYTES..]
-            .try_into()
-            .expect("Slice has incorrect length.");
+        bytes.copy_from_slice(&uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
         sample_iid_plus(f, bytes);
     }
 
     if NTRU_HPS {
-        let bytes: [u8; NTRU_SAMPLE_IID_BYTES] = uniformbytes[..NTRU_N]
-            .try_into()
-            .expect("Slice has incorrect length.");
+        let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0u8; NTRU_SAMPLE_IID_BYTES];
+        bytes.copy_from_slice(&uniformbytes[..NTRU_N - 1]);
         sample_iid(f, bytes);
-        let fixed_type_bytes = uniformbytes[NTRU_SAMPLE_IID_BYTES..]
-            .try_into()
-            .expect("Slice has incorrect length.");
+        let mut fixed_type_bytes: [u8; NTRU_SAMPLE_FG_BYTES - NTRU_SAMPLE_IID_BYTES] = [0; NTRU_SAMPLE_FG_BYTES - NTRU_SAMPLE_IID_BYTES];
+        fixed_type_bytes.copy_from_slice(&uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
         sample_fixed_type(g, fixed_type_bytes);
     }
 }
@@ -68,16 +63,45 @@ fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
     let i;
 
     for i in 0..((NTRU_N - 1) / 4) {
-        // TODO: cast last operand of assignments to rust equivalent of uint32_t, cast operands to i32
-        s[4 * i + 0] = ((u[15 * i + 0] << 2) + (u[15 * i + 1] << 10) + (u[15 * i + 2] << 18) + ((u[15 * i + 3]) << 26)) as i32;
-        s[4 * i + 1] = (((u[15 * i + 3] & 0xc0) >> 4) + (u[15 * i + 4] << 4) + (u[15 * i + 5] << 12) + (u[15 * i + 6] << 20) + ((u[15 * i + 7]) << 28)) as i32;
-        s[4 * i + 2] = (((u[15 * i + 7] & 0xf0) >> 2) + (u[15 * i + 8] << 6) + (u[15 * i + 9] << 14) + (u[15 * i + 10] << 22) + ((u[15 * i + 11]) << 30)) as i32;
-        s[4 * i + 3] = ((u[15 * i + 11] & 0xfc) + (u[15 * i + 12] << 8) + (u[15 * i + 13] << 16) + ((u[15 * i + 14]) << 24)) as i32;
+        s[4 * i + 0] = (((u[15 * i + 0] as i32) << 2) +
+            ((u[15 * i + 1] as i32) << 10) +
+            ((u[15 * i + 2] as i32) << 18) +
+            ((u[15 * i + 3] as u32) << 26) as i32
+        ) as i32;
+        s[4 * i + 1] = (((u[15 * i + 3] as i32 & 0xc0) >> 4) +
+            ((u[15 * i + 4] as i32) << 4) +
+            ((u[15 * i + 5] as i32) << 12) +
+            ((u[15 * i + 6] as i32) << 20) +
+            ((u[15 * i + 7] as u32) << 28) as i32
+        ) as i32;
+        s[4 * i + 2] = (((u[15 * i + 7] as i32 & 0xf0) >> 2) +
+            ((u[15 * i + 8] as i32) << 6) +
+            ((u[15 * i + 9] as i32) << 14) +
+            ((u[15 * i + 10] as i32) << 22) +
+            ((u[15 * i + 11] as u32) << 30) as i32
+        ) as i32;
+        s[4 * i + 3] = ((u[15 * i + 11] as i32 & 0xfc) +
+            ((u[15 * i + 12] as i32) << 8) +
+            ((u[15 * i + 13] as i32) << 16) +
+            ((u[15 * i + 14] as u32) << 24) as i32
+        ) as i32;
     }
+    // TODO: Configuration guard this if statement
+    // #[cfg!(NTRU_N - 1 > ((NTRU_N - 1) / 4) * 4)]
+    // if cfg!(NTRU_N - 1 > ((NTRU_N - 1) / 4) * 4) {
     if (NTRU_N - 1) > ((NTRU_N - 1) / 4) * 4 {
         i = (NTRU_N - 1) / 4;
-        s[4 * i + 0] = ((u[15 * i + 0] << 2) + (u[15 * i + 1] << 10) + (u[15 * i + 2] << 18) + ((u[15 * i + 3]) << 26)) as i32;
-        s[4 * i + 1] = (((u[15 * i + 3] & 0xc0) >> 4) + (u[15 * i + 4] << 4) + (u[15 * i + 5] << 12) + (u[15 * i + 6] << 20) + ((u[15 * i + 7]) << 28)) as i32;
+        s[4 * i + 0] = (((u[15 * i + 0] as i32) << 2) +
+            ((u[15 * i + 1] as i32) << 10) +
+            ((u[15 * i + 2] as i32) << 18) +
+            ((u[15 * i + 3] as u32) << 26) as i32
+        ) as i32;
+        s[4 * i + 1] = ((((u[15 * i + 3] as i32) & 0xc0) >> 4) +
+            ((u[15 * i + 4] as i32) << 4) +
+            ((u[15 * i + 5] as i32) << 12) +
+            ((u[15 * i + 6] as i32) << 20) +
+            ((u[15 * i + 7] as u32) << 28) as i32
+        ) as i32;
     }
 
     for i in 0..(NTRU_WEIGHT / 2) {

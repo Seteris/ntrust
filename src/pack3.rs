@@ -35,7 +35,6 @@ pub fn poly_s3_frombytes(mut r: &mut Poly, msg: [u8; NTRU_OWCPA_MSGBYTES]) {
         r.coeffs[5 * i + 3] = (c * 19 >> 9) as u16;  // division by 3^3
         r.coeffs[5 * i + 4] = (c * 203 >> 14) as u16;  // etc.
     }
-
     if NTRU_PACK_DEG > (NTRU_PACK_DEG / 5) * 5 {
         let i = NTRU_PACK_DEG / 5;
         c = msg[i];

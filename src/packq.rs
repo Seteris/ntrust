@@ -24,10 +24,8 @@ pub fn poly_sq_tobytes(r: &mut [u8],
         r[11 * i + 9] = ((t[6] >> 6) | ((t[7] & 0x07) << 5)) as u8;
         r[11 * i + 10] = (t[7] >> 3) as u8;
     }
-
-    i = ((NTRU_PACK_DEG / 8) - 1) as i16;
-
-    for j in 0..NTRU_PACK_DEG as i16 - 8 * i {
+    i = ((NTRU_PACK_DEG / 8)) as i16;
+    for j in 0..(NTRU_PACK_DEG as i16 - 8 * i) {
         t[j as usize] = MODQ(a.coeffs[(8 * i + j) as usize]);
     }
     let j = (NTRU_PACK_DEG as i16 - 8 * i) - 1;

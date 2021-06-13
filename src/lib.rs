@@ -3,9 +3,10 @@ use tiny_keccak::Sha3;
 use tiny_keccak::Shake;
 use wasm_bindgen::prelude::*;
 use web_sys;
+
 use crate::api::{CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES};
-use crate::params::NTRU_SAMPLE_FG_BYTES;
 use crate::owcpa::owcpa_keypair;
+use crate::params::{NTRU_N, NTRU_SAMPLE_FG_BYTES};
 
 mod utils;
 mod sample;
@@ -119,8 +120,16 @@ pub fn shake_wrapper(input: String, target: i8) -> Vec<u8> {
 
 #[wasm_bindgen]
 pub fn keypair_wrapper() {
+    log!("{}", NTRU_N - 1);
+    log!("{}", ((NTRU_N - 1) / 4) * 4);
     let pk: &mut [u8; CRYPTO_PUBLICKEYBYTES] = &mut [0; CRYPTO_PUBLICKEYBYTES];
     let sk: &mut [u8; CRYPTO_SECRETKEYBYTES] = &mut [0; CRYPTO_SECRETKEYBYTES];
     let seed: [u8; NTRU_SAMPLE_FG_BYTES] = [0; NTRU_SAMPLE_FG_BYTES];
     owcpa_keypair(pk, sk, seed);
+    log!("----PK----");
+    log!("{:?}", pk);
+    log!("----SK----");
+    log!("{:?}", sk);
+    log!("----Seed----");
+    log!("{:?}", seed);
 }
