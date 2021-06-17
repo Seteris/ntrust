@@ -17,6 +17,12 @@ pub fn mod3(a: u16) -> u16 {
     ((c as u16) & r) as u16 ^ (!c & t) as u16
 }
 
+pub fn poly_mod_q_phi_n(r: &mut Poly) {
+    for i in 0..NTRU_N {
+        r.coeffs[i] = r.coeffs[i] - r.coeffs[NTRU_N - 1];
+    }
+}
+
 pub fn poly_mod_3_phi_n(mut r: &mut Poly) {
     for i in 0..NTRU_N {
         r.coeffs[i] = mod3(r.coeffs[i] + 2 * r.coeffs[NTRU_N - 1]);

@@ -6,7 +6,7 @@ use web_sys;
 
 use crate::api::{CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES};
 use crate::owcpa::owcpa_keypair;
-use crate::params::{NTRU_N, NTRU_SAMPLE_FG_BYTES};
+use crate::params::{NTRU_N, NTRU_OWCPA_SECRETKEYBYTES, NTRU_PRFKEYBYTES, NTRU_SAMPLE_FG_BYTES};
 
 mod utils;
 mod sample;
@@ -119,17 +119,41 @@ pub fn shake_wrapper(input: String, target: i8) -> Vec<u8> {
 }
 
 #[wasm_bindgen]
-pub fn keypair_wrapper() {
-    log!("{}", NTRU_N - 1);
-    log!("{}", ((NTRU_N - 1) / 4) * 4);
-    let pk: &mut [u8; CRYPTO_PUBLICKEYBYTES] = &mut [0; CRYPTO_PUBLICKEYBYTES];
-    let sk: &mut [u8; CRYPTO_SECRETKEYBYTES] = &mut [0; CRYPTO_SECRETKEYBYTES];
-    let seed: [u8; NTRU_SAMPLE_FG_BYTES] = [0; NTRU_SAMPLE_FG_BYTES];
-    owcpa_keypair(pk, sk, seed);
-    log!("----PK----");
-    log!("{:?}", pk);
+pub fn crypto_kem_keypair() {
+    let mut pk: [u8; CRYPTO_PUBLICKEYBYTES] = [0; CRYPTO_PUBLICKEYBYTES];
+    let mut sk: [u8; CRYPTO_SECRETKEYBYTES] = [0; CRYPTO_SECRETKEYBYTES];
+    let mut seed: [u8; NTRU_SAMPLE_FG_BYTES] = [0; NTRU_SAMPLE_FG_BYTES];
+    randombytes(&mut seed, NTRU_SAMPLE_FG_BYTES as u64);
+
+    owcpa_keypair(&mut pk, &mut sk, seed);
+
+    let mut sk_copy: [u8; NTRU_PRFKEYBYTES]  = [0; NTRU_PRFKEYBYTES];
+    sk_copy.copy_from_slice(&sk[NTRU_OWCPA_SECRETKEYBYTES..]);
+    randombytes(&mut sk_copy, NTRU_PRFKEYBYTES as u64);
+    sk[NTRU_OWCPA_SECRETKEYBYTES..].copy_from_slice(&sk_copy);
+
+    // log!("----PK----");
+    // log!("{:x?}", pk);
     log!("----SK----");
-    log!("{:?}", sk);
-    log!("----Seed----");
-    log!("{:?}", seed);
+    log!("{:x?}", sk);
+    // log!("----Seed----");
+    // log!("{:x?}", seed);
 }
+
+pub fn randombytes(x: &mut [u8], xlen: u64) -> i32 {
+    for i in 0..xlen {
+        x[i as usize] = i as u8;
+    }
+    0
+}
+// int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
+// {
+// unsigned char seed[NTRU_SAMPLE_FG_BYTES];
+//
+// randombytes(seed, NTRU_SAMPLE_FG_BYTES);
+// owcpa_keypair(pk, sk, seed);
+//
+// randombytes(sk+NTRU_OWCPA_SECRETKEYBYTES, NTRU_PRFKEYBYTES);
+//
+// return 0;
+// }

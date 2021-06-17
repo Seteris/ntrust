@@ -68,7 +68,7 @@ document.addEventListener('click', function (event) {
             test_function_row.style.display = display_class;
             break;
         case 'encryption-start':
-            wasm.keypair_wrapper();
+            wasm.crypto_kem_keypair();
             break;
     }
 

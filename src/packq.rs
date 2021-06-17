@@ -2,6 +2,12 @@ use crate::params::{NTRU_N, NTRU_PACK_DEG};
 use crate::poly::MODQ;
 use crate::poly::Poly;
 
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( $t )* ).into());
+    }
+}
+
 pub fn poly_sq_tobytes(r: &mut [u8],
                        a: &mut Poly) {
     let mut t: [u16; 8] = [0; 8];
@@ -11,6 +17,7 @@ pub fn poly_sq_tobytes(r: &mut [u8],
     for i in 0..NTRU_PACK_DEG / 8 {
         for j in 0..8 {
             t[j] = MODQ(a.coeffs[8 * i + j]);
+            log!("MODQ {}", t[j]);
         }
         r[11 * i + 0] = (t[0] & 0xff) as u8;
         r[11 * i + 1] = ((t[0] >> 8) | ((t[1] & 0x1f) << 3)) as u8;
@@ -24,13 +31,28 @@ pub fn poly_sq_tobytes(r: &mut [u8],
         r[11 * i + 9] = ((t[6] >> 6) | ((t[7] & 0x07) << 5)) as u8;
         r[11 * i + 10] = (t[7] >> 3) as u8;
     }
-    i = ((NTRU_PACK_DEG / 8)) as i16;
+    for i in 0..NTRU_PACK_DEG / 8 {
+        log!("{}", r[11 * i + 0]);
+        log!("{}", r[11 * i + 1]);
+        log!("{}", r[11 * i + 2]);
+        log!("{}", r[11 * i + 3]);
+        log!("{}", r[11 * i + 4]);
+        log!("{}", r[11 * i + 5]);
+        log!("{}", r[11 * i + 6]);
+        log!("{}", r[11 * i + 7]);
+        log!("{}", r[11 * i + 8]);
+        log!("{}", r[11 * i + 9]);
+        log!("{}", r[11 * i + 10]);
+    }
+
+
+    i = (NTRU_PACK_DEG / 8) as i16;
     for j in 0..(NTRU_PACK_DEG as i16 - 8 * i) {
         t[j as usize] = MODQ(a.coeffs[(8 * i + j) as usize]);
     }
     let j = (NTRU_PACK_DEG as i16 - 8 * i) - 1;
-    for _ in j..8 {
-        t[j as usize] = 0;
+    for i in j..8 {
+        t[i as usize] = 0;
     }
 
     match NTRU_PACK_DEG {

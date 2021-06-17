@@ -56,11 +56,12 @@ pub fn sample_iid_plus(r: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_IID_BYTES]) 
 }
 
 #[allow(arithmetic_overflow)]
+#[allow(unconditional_panic)]
 fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
     // Assumes NTRU_SAMPLE_FT_BYTES = ceil(30*(n-1)/8)
 
     let mut s: [i32; NTRU_N - 1] = [0; NTRU_N - 1];
-    let i;
+    let i: usize;
 
     for i in 0..((NTRU_N - 1) / 4) {
         s[4 * i + 0] = (((u[15 * i + 0] as i32) << 2) +
@@ -86,9 +87,7 @@ fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
             ((u[15 * i + 14] as u32) << 24) as i32
         ) as i32;
     }
-    // TODO: Configuration guard this if statement
-    // #[cfg!(NTRU_N - 1 > ((NTRU_N - 1) / 4) * 4)]
-    // if cfg!(NTRU_N - 1 > ((NTRU_N - 1) / 4) * 4) {
+
     if (NTRU_N - 1) > ((NTRU_N - 1) / 4) * 4 {
         i = (NTRU_N - 1) / 4;
         s[4 * i + 0] = (((u[15 * i + 0] as i32) << 2) +
