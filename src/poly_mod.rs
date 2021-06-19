@@ -11,7 +11,7 @@ pub fn mod3(a: u16) -> u16 {
     r = (r >> 2) + (r & 0x3); // r' mod 3 == r mod 3
     r = (r >> 2) + (r & 0x3); // r' mod 3 == r mod 3
 
-    t = (r - 3) as i16;
+    t = r as i16 - 3;
     c = t >> 15;
 
     ((c as u16) & r) as u16 ^ (!c & t) as u16
