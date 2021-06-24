@@ -19,7 +19,7 @@ pub fn poly_s3_inv(r: &mut Poly, a: &mut Poly) {
     let mut delta: i16 = 1;
     let mut sign: i16;
     let mut swap: i16;
-    let mut t: i16;
+    let mut t: i16 = 0;
 
     let mut f: Poly = Poly::build(1);
     let mut g: Poly = Poly::new();
@@ -27,13 +27,14 @@ pub fn poly_s3_inv(r: &mut Poly, a: &mut Poly) {
     let mut w: Poly = Poly::new();
     w.coeffs[0] = 1;
 
+
     for i in 0..(NTRU_N - 1) {
         let a_i = a.coeffs[i] & 3;
         let a_ntru_n = a.coeffs[NTRU_N - 1] & 3;
         g.coeffs[NTRU_N - 2 - i] = mod3(&mut (a_i + 2 * a_ntru_n));
     }
 
-    for _ in 0..((2 * NTRU_N - 1) - 1) {
+    for _ in 0..(2 * (NTRU_N - 1) - 1) {
         let mut i = NTRU_N - 1;
         while i > 0 {
             v.coeffs[i] = v.coeffs[i - 1];

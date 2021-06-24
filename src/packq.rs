@@ -25,17 +25,16 @@ pub fn poly_sq_tobytes(r: &mut [u8],
         r[11 * i + 10] = (t[7] >> 3) as u8;
     }
 
-    i = ((NTRU_PACK_DEG / 8) - 1) as i16;
-
-    for j in 0..NTRU_PACK_DEG as i16 - 8 * i {
+    i = (NTRU_PACK_DEG / 8) as i16;
+    for j in 0..(NTRU_PACK_DEG as i16 - 8 * i) {
         t[j as usize] = MODQ(a.coeffs[(8 * i + j) as usize]);
     }
     let j = (NTRU_PACK_DEG as i16 - 8 * i) - 1;
-    for _ in j..8 {
-        t[j as usize] = 0;
+    for x in j + 1..8 {
+        t[x as usize] = 0;
     }
 
-    match NTRU_PACK_DEG {
+    match NTRU_PACK_DEG & 0x07 {
         // cases 0 and 6 are impossible since 2 generates (Z/n)* and
         // p mod 8 in {1, 7} implies that 2 is a quadratic residue.
         4 => {

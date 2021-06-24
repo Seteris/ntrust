@@ -41,7 +41,6 @@ pub fn poly_lift(r: &mut Poly, a: &Poly) {
     b.coeffs[2] += a.coeffs[0] * zj;
     b.coeffs[2] += a.coeffs[1] * (zj + t);
 
-    // TODO: check reasoning behind this:
     b.coeffs[0] = b.coeffs[0];
     b.coeffs[1] = b.coeffs[1];
     b.coeffs[2] = b.coeffs[2];

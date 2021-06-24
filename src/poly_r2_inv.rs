@@ -16,21 +16,24 @@ pub fn poly_r2_inv(r: &mut Poly, a: &Poly) {
     let mut swap: i16;
     let mut t: i16;
 
+    w.coeffs[0] = 1;
+
     for i in 0..NTRU_N - 1 {
         g.coeffs[NTRU_N - 2 - i] = (a.coeffs[i] ^ a.coeffs[NTRU_N - 1]) & 1;
     }
     g.coeffs[NTRU_N - 1] = 0;
 
-    for _ in 0..2 * (NTRU_N - 1) - 1 {
+    for _ in 0..(2 * (NTRU_N - 1)) - 1 {
         for i in (1..NTRU_N).rev() {
             v.coeffs[i] = v.coeffs[i - 1];
         }
         v.coeffs[0] = 0;
-        sign = (g.coeffs[0] & f.coeffs[0]) as i16;
-        swap = both_negative_mask(0 - delta, (0 - g.coeffs[0]) as i16);
-        delta ^= swap & (delta ^ (0 - delta));
+        sign = (g.coeffs[0] as i16 & f.coeffs[0] as i16);
+        swap = both_negative_mask(-delta, -(g.coeffs[0] as i16));
+        delta ^= swap & (delta ^ (-delta));
         delta += 1;
 
+        // correct until here
         for i in 0..NTRU_N {
             t = swap & (f.coeffs[i] ^ g.coeffs[i]) as i16;
             f.coeffs[i] ^= t as u16;
@@ -50,6 +53,7 @@ pub fn poly_r2_inv(r: &mut Poly, a: &Poly) {
         }
         g.coeffs[NTRU_N - 1] = 0;
     }
+
     for i in 0..NTRU_N - 1 {
         r.coeffs[i] = v.coeffs[NTRU_N - 2 - i];
     }

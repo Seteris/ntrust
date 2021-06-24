@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <link rel="stylesheet" href="style.css">
     <meta charset="utf-8">
@@ -9,11 +9,27 @@
 <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
 <script src="./bootstrap.js"></script>
 <h1 class="center">
-    WebAssembly Test
+    WebAssembly Test / NTRUEncrypt
 </h1>
 <div class="center-div row">
     <div class="col">
         <div class="row">
+            <div class="col">
+                <label for="encryption-input">Input to Encrypt<br></label>
+                <textarea class="textarea" id="encryption-input"></textarea><br>
+                <button id="encryption-start">Encrypt</button><br><br>
+                <label for="encryption-result">Result:</label><br>
+                <textarea class="textarea" id="encryption-result" disabled></textarea>
+            </div>
+            <hr class="section-split">
+            <div class="col">
+                <span>
+                <button id="toggle-test-functions">Toggle Test Function Display</button>
+                </span><br>
+            </div>
+        </div>
+
+        <div class="row test-functions" id="test-functions">
             <div class="col">
                 <label for="hash-input">Input to Hash:<br></label>
                 <textarea class="textarea" id="hash-input"></textarea><br>
@@ -39,16 +55,17 @@
                 <label for="hash-comparison"></label><br>
                 <textarea class="textarea comparison-box" id="hash-comparison"></textarea>
             </div>
+            <hr class="section-split">
+            <div class="col">
+                <label>
+                    Number of random bytes (default 128):
+                    <input type="number" id="num-bytes"/><br>
+                </label><br>
+                <button id="random-bytes">Give me some random bytes</button>
+            </div>
         </div>
     </div>
-    <hr class="section-split">
-    <div class="col">
-        <label>
-            Number of random bytes (default 128):
-            <input type="number" id="num-bytes"/><br>
-        </label><br>
-        <button id="random-bytes">Give me some random bytes</button>
-    </div>
+
 
 </div>
 </body>

@@ -7,3 +7,4 @@ wasm-pack.log
 www/node_modules
 www/dist
 /temp
+/ref_impl_modified

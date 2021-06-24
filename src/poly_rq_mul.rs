@@ -7,7 +7,7 @@ pub fn poly_rq_mul(r: &mut Poly, a: &Poly, b: &Poly) {
         for i in 1..NTRU_N - k {
             r.coeffs[k] += a.coeffs[k + i] * b.coeffs[NTRU_N - i];
         }
-        for i in 0..(k + 1) {
+        for i in 0..k + 1 {
             r.coeffs[k] += a.coeffs[k - i] * b.coeffs[i];
         }
     }
