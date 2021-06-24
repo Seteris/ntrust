@@ -1,13 +1,7 @@
 use crate::params::{NTRU_N, NTRU_Q};
+use crate::poly_mod::poly_mod_q_phi_n;
 use crate::poly_r2_inv::poly_r2_inv;
 use crate::poly_rq_mul::poly_rq_mul;
-use crate::poly_mod::poly_mod_q_phi_n;
-
-macro_rules! log {
-    ( $( $t:tt )* ) => {
-        web_sys::console::log_1(&format!( $( $t )* ).into());
-    }
-}
 
 pub struct Poly {
     pub coeffs: [u16; NTRU_N],

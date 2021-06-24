@@ -34,7 +34,7 @@ pub fn poly_s3_inv(r: &mut Poly, a: &mut Poly) {
         g.coeffs[NTRU_N - 2 - i] = mod3(&mut (a_i + 2 * a_ntru_n));
     }
 
-    for _ in 0..(2 *(NTRU_N - 1) - 1) {
+    for _ in 0..(2 * (NTRU_N - 1) - 1) {
         let mut i = NTRU_N - 1;
         while i > 0 {
             v.coeffs[i] = v.coeffs[i - 1];

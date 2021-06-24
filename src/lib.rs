@@ -127,17 +127,17 @@ pub fn crypto_kem_keypair() {
 
     owcpa_keypair(&mut pk, &mut sk, seed);
 
-    let mut sk_copy: [u8; NTRU_PRFKEYBYTES]  = [0; NTRU_PRFKEYBYTES];
+    let mut sk_copy: [u8; NTRU_PRFKEYBYTES] = [0; NTRU_PRFKEYBYTES];
     sk_copy.copy_from_slice(&sk[NTRU_OWCPA_SECRETKEYBYTES..]);
     randombytes(&mut sk_copy, NTRU_PRFKEYBYTES as u64);
     sk[NTRU_OWCPA_SECRETKEYBYTES..].copy_from_slice(&sk_copy);
 
-    // log!("----PK----");
-    // log!("{:x?}", pk);
+    log!("----PK----");
+    log!("{:x?}", pk);
     log!("----SK----");
     log!("{:x?}", sk);
-    // log!("----Seed----");
-    // log!("{:x?}", seed);
+    log!("----Seed----");
+    log!("{:x?}", seed);
 }
 
 pub fn randombytes(x: &mut [u8], xlen: u64) -> i32 {
@@ -146,14 +146,3 @@ pub fn randombytes(x: &mut [u8], xlen: u64) -> i32 {
     }
     0
 }
-// int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
-// {
-// unsigned char seed[NTRU_SAMPLE_FG_BYTES];
-//
-// randombytes(seed, NTRU_SAMPLE_FG_BYTES);
-// owcpa_keypair(pk, sk, seed);
-//
-// randombytes(sk+NTRU_OWCPA_SECRETKEYBYTES, NTRU_PRFKEYBYTES);
-//
-// return 0;
-// }
