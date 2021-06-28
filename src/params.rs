@@ -16,6 +16,8 @@ pub const NTRU_PACK_DEG: usize = NTRU_N - 1;
 pub const NTRU_PACK_TRINARY_BYTES: usize = (NTRU_PACK_DEG + 4) / 5;
 
 pub const NTRU_OWCPA_MSGBYTES: usize = 2 * NTRU_PACK_TRINARY_BYTES;
+pub const NTRU_OWCPA_BYTES: usize = (NTRU_LOGQ * NTRU_PACK_DEG + 7) / 8;
+pub const NTRU_CIPHERTEXTBYTES: usize = NTRU_OWCPA_BYTES;
 
 pub const NTRU_HPS: bool = true;
 pub const NTRU_HRSS: bool = !NTRU_HPS;

@@ -54,7 +54,7 @@ pub fn poly_sq_tobytes(r: &mut [u8],
     }
 }
 
-pub fn poly_sq_frombytes(r: &mut Poly, a: &mut [u8]) {
+pub fn poly_sq_frombytes(r: &mut Poly, a: &[u8]) {
     let i = (NTRU_PACK_DEG / 8) - 1;
     for i in 0..(NTRU_PACK_DEG / 8) {
         r.coeffs[8 * i + 0] = ((a[11 * i + 0] >> 0) | ((a[11 * i + 1] & 0x07) << 8)) as u16;
@@ -88,7 +88,7 @@ pub fn poly_rq_sum_zero_tobytes(r: &mut [u8], a: &mut Poly) {
     poly_sq_tobytes(r, a);
 }
 
-pub fn poly_rq_sum_zero_frombytes(r: &mut Poly, a: &mut [u8]) {
+pub fn poly_rq_sum_zero_frombytes(r: &mut Poly, a: &[u8]) {
     poly_sq_frombytes(r, a);
 
     /* Set r[n-1] so that the sum of coefficients is zero mod q */
