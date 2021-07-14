@@ -1,4 +1,6 @@
 // defines:
+// TODO: get parameter sets from different implementations
+#[cfg(feature = "ntruhps2048509")]
 pub const NTRU_N: usize = 509;
 pub const NTRU_SAMPLE_IID_BYTES: usize = NTRU_N - 1;
 pub const NTRU_OWCPA_SECRETKEYBYTES: usize = 2 * NTRU_PACK_TRINARY_BYTES + NTRU_OWCPA_PUBLICKEYBYTES;
@@ -16,6 +18,3 @@ pub const NTRU_PACK_DEG: usize = NTRU_N - 1;
 pub const NTRU_PACK_TRINARY_BYTES: usize = (NTRU_PACK_DEG + 4) / 5;
 
 pub const NTRU_OWCPA_MSGBYTES: usize = 2 * NTRU_PACK_TRINARY_BYTES;
-
-pub const NTRU_HPS: bool = true;
-pub const NTRU_HRSS: bool = !NTRU_HPS;

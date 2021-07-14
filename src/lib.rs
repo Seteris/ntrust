@@ -6,7 +6,7 @@ use web_sys;
 
 use crate::api::{CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES};
 use crate::owcpa::owcpa_keypair;
-use crate::params::{NTRU_N, NTRU_OWCPA_SECRETKEYBYTES, NTRU_PRFKEYBYTES, NTRU_SAMPLE_FG_BYTES};
+use crate::params::{NTRU_OWCPA_SECRETKEYBYTES, NTRU_PRFKEYBYTES, NTRU_SAMPLE_FG_BYTES};
 
 mod utils;
 mod sample;

@@ -8,8 +8,11 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [features]
-default = ["console_error_panic_hook", "NTRU_HPS"]
-NTRU_HPS = []
+default = ["ntruhps2048509", "ntruhps2048677"]
+ntruhps2048509 = []
+ntruhps2048677 = []
+ntruhps4096821 = []
+ntruhrss701 = []
 
 [dependencies]
 wasm-bindgen = "0.2.72"

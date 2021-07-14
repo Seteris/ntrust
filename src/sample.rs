@@ -1,12 +1,10 @@
-use std::convert::TryInto;
-
 use crate::crypto_sort_int32;
-use crate::params::{NTRU_HPS, NTRU_HRSS, NTRU_N, NTRU_SAMPLE_FG_BYTES, NTRU_SAMPLE_FT_BYTES, NTRU_SAMPLE_IID_BYTES, NTRU_WEIGHT};
+use crate::params::{NTRU_N, NTRU_SAMPLE_FG_BYTES, NTRU_SAMPLE_FT_BYTES, NTRU_SAMPLE_IID_BYTES, NTRU_WEIGHT};
 use crate::poly::Poly;
 use crate::sample_iid::sample_iid;
 
 pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_BYTES]) {
-    if NTRU_HRSS {
+    if cfg!(any(feature="ntruhrss701")) {
         let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0u8; NTRU_SAMPLE_IID_BYTES];
         bytes.copy_from_slice(&uniformbytes[..NTRU_N]);
         sample_iid_plus(f, bytes);
@@ -14,7 +12,10 @@ pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_B
         sample_iid_plus(f, bytes);
     }
 
-    if NTRU_HPS {
+    if cfg!(any(feature = "ntruhps2048509",
+                feature = "ntruhps2048677",
+                feature = "ntruhps4096821")
+        ) {
         let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0u8; NTRU_SAMPLE_IID_BYTES];
         bytes.copy_from_slice(&uniformbytes[..NTRU_N - 1]);
         sample_iid(f, bytes);

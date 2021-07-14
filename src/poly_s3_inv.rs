@@ -19,7 +19,7 @@ pub fn poly_s3_inv(r: &mut Poly, a: &mut Poly) {
     let mut delta: i16 = 1;
     let mut sign: i16;
     let mut swap: i16;
-    let mut t: i16 = 0;
+    let mut t: i16;
 
     let mut f: Poly = Poly::build(1);
     let mut g: Poly = Poly::new();

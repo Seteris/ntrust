@@ -28,7 +28,7 @@ pub fn poly_r2_inv(r: &mut Poly, a: &Poly) {
             v.coeffs[i] = v.coeffs[i - 1];
         }
         v.coeffs[0] = 0;
-        sign = (g.coeffs[0] as i16 & f.coeffs[0] as i16);
+        sign = g.coeffs[0] as i16 & f.coeffs[0] as i16;
         swap = both_negative_mask(-delta, -(g.coeffs[0] as i16));
         delta ^= swap & (delta ^ (-delta));
         delta += 1;
