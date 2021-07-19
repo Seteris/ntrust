@@ -16,7 +16,7 @@ pub fn poly_s3_tobytes(msg: &mut [u8; NTRU_OWCPA_MSGBYTES], a: &Poly) {
     if NTRU_PACK_DEG > (NTRU_PACK_DEG / 5) * 5 { // if 5 does not divide NTRU_N - 1
         let i = NTRU_PACK_DEG / 5;
         c = 0;
-        let mut j: isize = (NTRU_PACK_DEG - (5 * i) - 1) as isize;
+        let mut j: isize = NTRU_PACK_DEG as isize - (5 * i) as isize - 1;
         while j >= 0 {
             c = ((3 * c as u16 + a.coeffs[5 * i + j as usize]) & 255) as u8;
             j -= 1;
