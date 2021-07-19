@@ -1,10 +1,12 @@
-use std::convert::TryInto;
-
 use crate::api::{CRYPTO_CIPHERTEXTBYTES, CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES};
 use crate::pack3::{poly_s3_frombytes, poly_s3_tobytes};
 use crate::packq::{poly_rq_sum_zero_frombytes, poly_rq_sum_zero_tobytes, poly_sq_frombytes, poly_sq_tobytes};
 use crate::params::{NTRU_CIPHERTEXTBYTES, NTRU_HPS, NTRU_HRSS, NTRU_LOGQ, NTRU_N, NTRU_OWCPA_MSGBYTES, NTRU_PACK_DEG, NTRU_PACK_TRINARY_BYTES, NTRU_Q, NTRU_SAMPLE_FG_BYTES, NTRU_WEIGHT};
 use crate::poly::{poly_rq_inv, poly_s3_mul, poly_sq_mul, poly_trinary_zq_to_z3, poly_z3_to_zq};
+use crate::pack3::poly_s3_tobytes;
+use crate::packq::{poly_rq_sum_zero_frombytes, poly_rq_sum_zero_tobytes, poly_sq_tobytes};
+use crate::params::{NTRU_N, NTRU_OWCPA_MSGBYTES, NTRU_PACK_TRINARY_BYTES, NTRU_SAMPLE_FG_BYTES};
+use crate::poly::{poly_rq_inv, poly_sq_mul, poly_z3_to_zq};
 use crate::poly::Poly;
 use crate::poly_lift::poly_lift;
 use crate::poly_mod::poly_rq_to_s3;
@@ -96,7 +98,7 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
     poly_z3_to_zq(f);
     poly_z3_to_zq(g);
 
-    if cfg!(feature="NTRU_HRSS") {
+    if cfg!(feature="ntruhrss701") {
         /* g = 3*(x-1)*g */
         // C implementation loops from [NTRU_N - 1;0)
         // .rev() reverses the iterator AFTER the range has been evaluated
@@ -106,7 +108,10 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
         g.coeffs[0] = 0 - (3 * g.coeffs[0]);
     }
 
-    if cfg!(feature="NTRU_HPS") {
+    if cfg!(any(feature = "ntruhps2048509",
+                feature = "ntruhps2048677",
+                feature="ntruhps4096821")
+        ) {
         /* g = 3*g */
         for i in 0..NTRU_N {
             g.coeffs[i] = 3 * g.coeffs[i];

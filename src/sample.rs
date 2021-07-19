@@ -1,20 +1,18 @@
-use std::convert::TryInto;
-
+#[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))]
 use crate::crypto_sort_int32;
-use crate::params::{NTRU_HPS, NTRU_HRSS, NTRU_N, NTRU_SAMPLE_FG_BYTES, NTRU_SAMPLE_FT_BYTES, NTRU_SAMPLE_IID_BYTES, NTRU_WEIGHT};
+use crate::params::{NTRU_N, NTRU_SAMPLE_FG_BYTES, NTRU_SAMPLE_FT_BYTES, NTRU_SAMPLE_IID_BYTES, NTRU_WEIGHT};
 use crate::poly::Poly;
 use crate::sample_iid::sample_iid;
 
 pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_BYTES]) {
-    if NTRU_HRSS {
+    #[cfg(feature = "ntruhrss701")] {
         let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0u8; NTRU_SAMPLE_IID_BYTES];
         bytes.copy_from_slice(&uniformbytes[..NTRU_N]);
         sample_iid_plus(f, bytes);
         bytes.copy_from_slice(&uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
         sample_iid_plus(f, bytes);
     }
-
-    if NTRU_HPS {
+    #[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))] {
         let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0u8; NTRU_SAMPLE_IID_BYTES];
         bytes.copy_from_slice(&uniformbytes[..NTRU_N - 1]);
         sample_iid(f, bytes);
@@ -57,6 +55,7 @@ pub fn sample_iid_plus(r: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_IID_BYTES]) 
 
 #[allow(arithmetic_overflow)]
 #[allow(unconditional_panic)]
+#[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))]
 fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
     // Assumes NTRU_SAMPLE_FT_BYTES = ceil(30*(n-1)/8)
 
@@ -110,7 +109,8 @@ fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
     for i in (NTRU_WEIGHT / 2)..NTRU_WEIGHT {
         s[i] |= 2;
     }
-    crypto_sort_int32::crypto_sort_int32(&mut s, NTRU_N - 1);
+    #[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))]
+        crypto_sort_int32::crypto_sort_int32(&mut s, NTRU_N - 1);
 
     // for(i=0; i<NTRU_N-1; i++)
     // r->coeffs[i] = ((uint16_t) (s[i] & 3));
