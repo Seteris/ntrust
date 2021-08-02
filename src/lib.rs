@@ -21,7 +21,7 @@ mod poly_r2_inv;
 mod packq;
 mod sample_iid;
 mod api;
-mod owcpa;
+pub mod owcpa;
 mod poly_lift;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global

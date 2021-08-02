@@ -25,6 +25,7 @@ pub fn poly_s3_tobytes(msg: &mut [u8; NTRU_OWCPA_MSGBYTES], a: &Poly) {
     }
 }
 
+#[allow(arithmetic_overflow)]
 pub fn poly_s3_frombytes(mut r: &mut Poly, msg: [u8; NTRU_OWCPA_MSGBYTES]) {
     let mut c: u8;
     for i in 0..NTRU_PACK_DEG / 5 {

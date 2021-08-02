@@ -113,6 +113,7 @@ pub fn poly_sq_tobytes(r: &mut [u8],
 }
 
 #[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))]
+#[allow(arithmetic_overflow)]
 pub fn poly_sq_frombytes(r: &mut Poly, a: &[u8]) {
     let i = (NTRU_PACK_DEG / 8) - 1;
     for i in 0..(NTRU_PACK_DEG / 8) {
@@ -144,6 +145,7 @@ pub fn poly_sq_frombytes(r: &mut Poly, a: &[u8]) {
 }
 
 #[cfg(feature = "ntruhrss701")]
+#[allow(arithmetic_overflow)]
 pub fn poly_sq_frombytes(r: &mut Poly, a: &mut [u8]) {
     let i = (NTRU_PACK_DEG / 8) - 1;
     for i in 0..(NTRU_PACK_DEG / 8) {
