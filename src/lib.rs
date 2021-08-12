@@ -10,7 +10,7 @@ use crate::params::{NTRU_OWCPA_SECRETKEYBYTES, NTRU_PRFKEYBYTES, NTRU_SAMPLE_FG_
 
 mod utils;
 mod sample;
-mod params;
+pub mod params;
 mod crypto_sort_int32;
 mod poly_s3_inv;
 mod pack3;
@@ -20,7 +20,7 @@ mod poly_rq_mul;
 mod poly_r2_inv;
 mod packq;
 mod sample_iid;
-mod api;
+pub mod api;
 pub mod owcpa;
 mod poly_lift;
 
