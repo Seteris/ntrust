@@ -59,7 +59,7 @@ pub fn poly_r2_inv_to_rq_inv(r: &mut Poly, ai: Poly, a: &Poly) {
     // for 0..4
     //    ai = ai * (2 - a*ai)  mod q
     for i in 0..NTRU_N {
-        b.coeffs[i] = 0 - a.coeffs[i];
+        b.coeffs[i] = !a.coeffs[i];
     }
     for i in 0..NTRU_N {
         r.coeffs[i] = ai.coeffs[i];

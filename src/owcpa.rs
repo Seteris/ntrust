@@ -72,7 +72,8 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
                      seed: [u8; NTRU_SAMPLE_FG_BYTES]) {
     let mut x3: Poly = Poly::new();
 
-    log!("owcpa_keypair {:x?}", pk);
+    log!("owcpa_keypair");
+    log!("seed: {:x?}", seed);
 
     let f: &mut Poly = &mut Poly::new();
     let g: &mut Poly = &mut Poly::new();
@@ -83,28 +84,23 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
     // let gf: &mut Poly = &mut x3;
     // let invh: &mut Poly = &mut x3;
     // let h: &mut Poly = &mut x3;
-    log!("sample_fg {:x?}", pk);
     sample_fg(f, g, seed);
-    log!("poly_s3_inv {:x?}", pk);
+    log!("f: {:x?}\ng: {:x?}\nseed: {:x?}", f.coeffs, g.coeffs, seed);
     poly_s3_inv(invf_mod3, f);
 
     let mut sk_bytes: [u8; NTRU_OWCPA_MSGBYTES] = [0u8; NTRU_OWCPA_MSGBYTES];
     sk_bytes.copy_from_slice(&sk[..NTRU_OWCPA_MSGBYTES]);
-    log!("poly_s3_tobytes {:x?}", pk);
     poly_s3_tobytes(&mut sk_bytes, f);
 
     sk[..NTRU_OWCPA_MSGBYTES].copy_from_slice(&sk_bytes);
 
     let mut sk_msgbytes: [u8; NTRU_OWCPA_MSGBYTES] = [0u8; NTRU_OWCPA_MSGBYTES];
     sk_msgbytes.copy_from_slice(&sk[NTRU_PACK_TRINARY_BYTES..NTRU_OWCPA_MSGBYTES + NTRU_PACK_TRINARY_BYTES]);
-    log!("poly_s3_tobytes 2 {:x?}", pk);
     poly_s3_tobytes(&mut sk_msgbytes, invf_mod3);
     sk[NTRU_PACK_TRINARY_BYTES..NTRU_OWCPA_MSGBYTES + NTRU_PACK_TRINARY_BYTES].copy_from_slice(&sk_msgbytes);
 
     /* Lift coeffs of f and g from Z_p to Z_q */
-    log!("poly_z3_to_zq(f) {:x?}", pk);
     poly_z3_to_zq(f);
-    log!("poly_z3_to_zq(q) {:x?}", pk);
     poly_z3_to_zq(g);
 
     #[cfg(feature = "ntruhrss701")] {
@@ -123,13 +119,10 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
             g.coeffs[i] = 3 * g.coeffs[i];
         }
     }
-    log!("poly_rq_mul {:x?}", pk);
+
     poly_rq_mul(&mut x3, g, f);
-    log!("poly_rq_inv {:x?}", pk);
-    poly_rq_inv(invgf, &mut x3);
-    log!("poly_rq_mul {:x?}", pk);
+    poly_rq_inv(invgf, &x3);
     poly_rq_mul(tmp, invgf, f);
-    log!("poly_sq_mul {:x?}", pk);
     poly_sq_mul(&mut x3, tmp, f);
 
     const SK_PACK_TRINARY_BYTE_SIZE: usize = CRYPTO_SECRETKEYBYTES - 2 * NTRU_PACK_TRINARY_BYTES;
@@ -138,13 +131,10 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
     poly_sq_tobytes(&mut sk_pack_trinary_bytes, &mut x3);
     sk[2 * NTRU_PACK_TRINARY_BYTES..].copy_from_slice(&sk_pack_trinary_bytes);
 
-    log!("poly_rq_mul {:x?}", pk);
     poly_rq_mul(tmp, invgf, g);
-    log!("poly_rq_mul {:x?}", pk);
     poly_rq_mul(&mut x3, tmp, g);
-    log!("poly_rq_sum_zero_tobytes {:x?}", pk);
     poly_rq_sum_zero_tobytes(pk, &mut x3);
-    log!("owcpa_keypair done {:x?}", pk);
+    log!("owcpa_keypair done");
 }
 
 pub fn owcpa_enc(c: &mut [u8; CRYPTO_CIPHERTEXTBYTES],

@@ -43,7 +43,7 @@ pub fn poly_s3_inv(r: &mut Poly, a: &mut Poly) {
         v.coeffs[0] = 0;
 
         sign = mod3(&mut (2 * g.coeffs[0] * f.coeffs[0])) as i16;
-        swap = both_negative_mask(0 - delta, (0 - g.coeffs[0]) as i16);
+        swap = both_negative_mask(0 - delta,  - (g.coeffs[0] as i16));
         delta ^= swap & (delta ^ (0 - delta));
         delta += 1;
 

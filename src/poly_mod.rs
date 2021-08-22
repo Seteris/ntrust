@@ -1,5 +1,6 @@
 use crate::params::{NTRU_LOGQ, NTRU_N};
 use crate::poly::{MODQ, Poly};
+use std::num::Wrapping;
 
 pub fn mod3(a: u16) -> u16 {
     let mut r: u16;
@@ -19,7 +20,7 @@ pub fn mod3(a: u16) -> u16 {
 
 pub fn poly_mod_q_phi_n(r: &mut Poly) {
     for i in 0..NTRU_N {
-        r.coeffs[i] = r.coeffs[i] - r.coeffs[NTRU_N - 1];
+        r.coeffs[i] = (Wrapping(r.coeffs[i]) - Wrapping(r.coeffs[NTRU_N - 1])).0;
     }
 }
 
