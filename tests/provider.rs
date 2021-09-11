@@ -3,7 +3,7 @@ use crypto_test::params::{NTRU_N, NTRU_SAMPLE_FG_BYTES};
 
 const TEST_DATA_SIZE: usize = 100;
 pub const TEST_DATA_CHUNK_SIZE: usize = 10;
-pub const TEST_DATA_CHUNK_COUNT: usize = TEST_DATA_CHUNK_SIZE / TEST_DATA_CHUNK_SIZE;
+pub const TEST_DATA_CHUNK_COUNT: usize = TEST_DATA_SIZE / TEST_DATA_CHUNK_SIZE;
 
 #[derive(Debug, Copy, Clone)]
 #[allow(unused_variables)]

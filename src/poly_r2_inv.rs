@@ -33,7 +33,6 @@ pub fn poly_r2_inv(r: &mut Poly, a: &Poly) {
         delta ^= swap & (delta ^ (-delta));
         delta += 1;
 
-        // correct until here
         for i in 0..NTRU_N {
             t = swap & (f.coeffs[i] ^ g.coeffs[i]) as i16;
             f.coeffs[i] ^= t as u16;

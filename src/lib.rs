@@ -7,6 +7,8 @@ use web_sys;
 use crate::api::{CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES};
 use crate::owcpa::owcpa_keypair;
 use crate::params::{NTRU_OWCPA_SECRETKEYBYTES, NTRU_PRFKEYBYTES, NTRU_SAMPLE_FG_BYTES};
+use crate::rng::{randombytes, Aes256CtrDrbgStruct};
+use wasm_bindgen::convert::FromWasmAbi;
 
 mod utils;
 mod sample;
@@ -23,6 +25,7 @@ mod sample_iid;
 pub mod api;
 pub mod owcpa;
 mod poly_lift;
+mod rng;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -123,13 +126,15 @@ pub fn crypto_kem_keypair() {
     let mut pk: [u8; CRYPTO_PUBLICKEYBYTES] = [0; CRYPTO_PUBLICKEYBYTES];
     let mut sk: [u8; CRYPTO_SECRETKEYBYTES] = [0; CRYPTO_SECRETKEYBYTES];
     let mut seed: [u8; NTRU_SAMPLE_FG_BYTES] = [0; NTRU_SAMPLE_FG_BYTES];
-    randombytes(&mut seed, NTRU_SAMPLE_FG_BYTES as u64);
+
+    let &mut aes_ctr_drbg: Aes256CtrDrbgStruct = Aes256CtrDrbgStruct::new();
+    randombytes(&mut seed, NTRU_SAMPLE_FG_BYTES as u64, aes_ctr_drbg);
 
     owcpa_keypair(&mut pk, &mut sk, seed);
 
     let mut sk_copy: [u8; NTRU_PRFKEYBYTES] = [0; NTRU_PRFKEYBYTES];
     sk_copy.copy_from_slice(&sk[NTRU_OWCPA_SECRETKEYBYTES..]);
-    randombytes(&mut sk_copy, NTRU_PRFKEYBYTES as u64);
+    randombytes(&mut sk_copy, NTRU_PRFKEYBYTES as u64, aes_ctr_drbg);
     sk[NTRU_OWCPA_SECRETKEYBYTES..].copy_from_slice(&sk_copy);
 
     log!("----PK----");
@@ -140,9 +145,11 @@ pub fn crypto_kem_keypair() {
     log!("{:x?}", seed);
 }
 
-pub fn randombytes(x: &mut [u8], xlen: u64) -> i32 {
-    for i in 0..xlen {
-        x[i as usize] = i as u8;
-    }
-    0
+#[wasm_bindgen]
+pub fn crypto_kem_keypair_test(
+    mut pk: [u8; CRYPTO_PUBLICKEYBYTES],
+    mut sk: [u8; CRYPTO_SECRETKEYBYTES],
+    mut seed: [u8; NTRU_SAMPLE_FG_BYTES])
+{
+
 }

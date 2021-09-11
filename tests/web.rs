@@ -1,8 +1,9 @@
 //! Test suite for the Web and headless browsers.
 #![cfg(target_arch = "wasm32")]
 
-extern crate hex;
 extern crate wasm_bindgen_test;
+
+pub mod provider;
 
 use wasm_bindgen_test::*;
 
@@ -11,7 +12,6 @@ use crypto_test::params;
 use crypto_test::params::NTRU_SAMPLE_FG_BYTES;
 use provider::{TEST_DATA_CHUNK_COUNT, TEST_DATA_CHUNK_SIZE};
 
-pub mod provider;
 wasm_bindgen_test_configure!(run_in_browser);
 
 #[wasm_bindgen_test]
