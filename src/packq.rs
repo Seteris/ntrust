@@ -2,11 +2,17 @@ use crate::params::{NTRU_N, NTRU_PACK_DEG};
 use crate::poly::MODQ;
 use crate::poly::Poly;
 
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( $t )* ).into());
+    }
+}
+
 #[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))]
 pub fn poly_sq_tobytes(r: &mut [u8],
                        a: &mut Poly) {
     let mut t: [u16; 8] = [0; 8];
-
+    log!("NTRUHPS poly_sq_tobytes");
     let i: i16;
 
     for i in 0..NTRU_PACK_DEG / 8 {
@@ -25,6 +31,8 @@ pub fn poly_sq_tobytes(r: &mut [u8],
         r[11 * i + 9] = ((t[6] >> 6) | ((t[7] & 0x07) << 5)) as u8;
         r[11 * i + 10] = (t[7] >> 3) as u8;
     }
+    log!("t = {:x?}", t);
+    log!("a = {:x?}", a.coeffs);
 
     i = (NTRU_PACK_DEG / 8) as i16;
     for j in 0..(NTRU_PACK_DEG as i16 - 8 * i) {
@@ -53,13 +61,14 @@ pub fn poly_sq_tobytes(r: &mut [u8],
         }
         _ => {}
     }
+    log!("NTRUHPS poly_sq_tobytes done");
 }
 
 #[cfg(feature = "ntruhrss701")]
 pub fn poly_sq_tobytes(r: &mut [u8],
                        a: &mut Poly) {
     let mut t: [u16; 8] = [0; 8];
-
+    log!("NTRUHRSS");
     let i: i16;
 
     for i in 0..NTRU_PACK_DEG / 8 {
@@ -113,7 +122,8 @@ pub fn poly_sq_tobytes(r: &mut [u8],
 }
 
 #[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))]
-pub fn poly_sq_frombytes(r: &mut Poly, a: &mut [u8]) {
+#[allow(arithmetic_overflow)]
+pub fn poly_sq_frombytes(r: &mut Poly, a: &[u8]) {
     let i = (NTRU_PACK_DEG / 8) - 1;
     for i in 0..(NTRU_PACK_DEG / 8) {
         r.coeffs[8 * i + 0] = ((a[11 * i + 0] >> 0) | ((a[11 * i + 1] & 0x07) << 8)) as u16;
@@ -144,6 +154,7 @@ pub fn poly_sq_frombytes(r: &mut Poly, a: &mut [u8]) {
 }
 
 #[cfg(feature = "ntruhrss701")]
+#[allow(arithmetic_overflow)]
 pub fn poly_sq_frombytes(r: &mut Poly, a: &mut [u8]) {
     let i = (NTRU_PACK_DEG / 8) - 1;
     for i in 0..(NTRU_PACK_DEG / 8) {
@@ -178,7 +189,7 @@ pub fn poly_rq_sum_zero_tobytes(r: &mut [u8], a: &mut Poly) {
     poly_sq_tobytes(r, a);
 }
 
-pub fn poly_rq_sum_zero_frombytes(r: &mut Poly, a: &mut [u8]) {
+pub fn poly_rq_sum_zero_frombytes(r: &mut Poly, a: &[u8]) {
     poly_sq_frombytes(r, a);
 
     /* Set r[n-1] so that the sum of coefficients is zero mod q */

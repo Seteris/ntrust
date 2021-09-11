@@ -1,5 +1,5 @@
-use crate::params::{NTRU_N, NTRU_Q};
-use crate::poly_mod::poly_mod_q_phi_n;
+use crate::params::{NTRU_LOGQ, NTRU_N, NTRU_Q};
+use crate::poly_mod::{poly_mod_3_phi_n, poly_mod_q_phi_n};
 use crate::poly_r2_inv::poly_r2_inv;
 use crate::poly_rq_mul::poly_rq_mul;
 
@@ -26,13 +26,25 @@ pub const MODQ: fn(u16) -> u16 = |x| {
 
 pub fn poly_z3_to_zq(r: &mut Poly) {
     for i in 0..NTRU_N {
-        r.coeffs[i] = r.coeffs[i] | (0 - (r.coeffs[i] >> 1)) & (NTRU_Q - 1) as u16;
+        r.coeffs[i] = r.coeffs[i] | (0 as i16 - (r.coeffs[i] as i16 >> 1)) as u16 & (NTRU_Q - 1) as u16;
+    }
+}
+
+pub fn poly_trinary_zq_to_z3(r: &mut Poly) {
+    for i in 0..NTRU_N {
+        r.coeffs[i] = MODQ(r.coeffs[i]);
+        r.coeffs[i] = 3 & (r.coeffs[i] ^ (r.coeffs[i] >> (NTRU_LOGQ - 1)));
     }
 }
 
 pub fn poly_sq_mul(r: &mut Poly, a: &Poly, b: &Poly) {
     poly_rq_mul(r, a, b);
     poly_mod_q_phi_n(r);
+}
+
+pub fn poly_s3_mul(r: &mut Poly, a: &Poly, b: &Poly) {
+    poly_rq_mul(r, a, b);
+    poly_mod_3_phi_n(r);
 }
 
 pub fn poly_r2_inv_to_rq_inv(r: &mut Poly, ai: Poly, a: &Poly) {
@@ -47,7 +59,7 @@ pub fn poly_r2_inv_to_rq_inv(r: &mut Poly, ai: Poly, a: &Poly) {
     // for 0..4
     //    ai = ai * (2 - a*ai)  mod q
     for i in 0..NTRU_N {
-        b.coeffs[i] = 0 - a.coeffs[i];
+        b.coeffs[i] = !a.coeffs[i];
     }
     for i in 0..NTRU_N {
         r.coeffs[i] = ai.coeffs[i];
