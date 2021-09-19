@@ -7,8 +7,7 @@ use web_sys;
 use crate::api::{CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES};
 use crate::owcpa::owcpa_keypair;
 use crate::params::{NTRU_OWCPA_SECRETKEYBYTES, NTRU_PRFKEYBYTES, NTRU_SAMPLE_FG_BYTES};
-use crate::rng::{randombytes, Aes256CtrDrbgStruct};
-use wasm_bindgen::convert::FromWasmAbi;
+use crate::rng::{Aes256CtrDrbgStruct, randombytes};
 
 mod utils;
 mod sample;
@@ -127,14 +126,14 @@ pub fn crypto_kem_keypair() {
     let mut sk: [u8; CRYPTO_SECRETKEYBYTES] = [0; CRYPTO_SECRETKEYBYTES];
     let mut seed: [u8; NTRU_SAMPLE_FG_BYTES] = [0; NTRU_SAMPLE_FG_BYTES];
 
-    let &mut aes_ctr_drbg: Aes256CtrDrbgStruct = Aes256CtrDrbgStruct::new();
-    randombytes(&mut seed, NTRU_SAMPLE_FG_BYTES as u64, aes_ctr_drbg);
+    let aes_ctr_drbg: &mut Aes256CtrDrbgStruct = &mut Aes256CtrDrbgStruct::new();
+    randombytes(&mut seed, &mut (NTRU_SAMPLE_FG_BYTES as u64), aes_ctr_drbg);
 
     owcpa_keypair(&mut pk, &mut sk, seed);
 
     let mut sk_copy: [u8; NTRU_PRFKEYBYTES] = [0; NTRU_PRFKEYBYTES];
     sk_copy.copy_from_slice(&sk[NTRU_OWCPA_SECRETKEYBYTES..]);
-    randombytes(&mut sk_copy, NTRU_PRFKEYBYTES as u64, aes_ctr_drbg);
+    randombytes(&mut sk_copy, &mut (NTRU_PRFKEYBYTES as u64), aes_ctr_drbg);
     sk[NTRU_OWCPA_SECRETKEYBYTES..].copy_from_slice(&sk_copy);
 
     log!("----PK----");
@@ -145,11 +144,41 @@ pub fn crypto_kem_keypair() {
     log!("{:x?}", seed);
 }
 
+const TEST_PASS: i32 = 0;
+const PARAMETER_SIZE_INVALID: i32 = 1;
+
 #[wasm_bindgen]
 pub fn crypto_kem_keypair_test(
-    mut pk: [u8; CRYPTO_PUBLICKEYBYTES],
-    mut sk: [u8; CRYPTO_SECRETKEYBYTES],
-    mut seed: [u8; NTRU_SAMPLE_FG_BYTES])
-{
-
+    mut pk_vec: Vec<u8>,
+    mut sk_vec: Vec<u8>,
+    mut seed_vec: Vec<u8>,
+    comparison_pk_vec: Vec<u8>,
+    comparison_sk_vec: Vec<u8>,
+    comparison_seed_vec: Vec<u8>
+) -> i32 {
+    if pk_vec.len() != CRYPTO_PUBLICKEYBYTES ||
+        sk_vec.len() != CRYPTO_SECRETKEYBYTES ||
+        seed_vec.len() != NTRU_SAMPLE_FG_BYTES ||
+        comparison_pk_vec.len() != CRYPTO_PUBLICKEYBYTES ||
+        comparison_sk_vec.len() != CRYPTO_SECRETKEYBYTES ||
+        comparison_seed_vec.len() != NTRU_SAMPLE_FG_BYTES {
+        return PARAMETER_SIZE_INVALID;
+    }
+    let pk: &mut [u8; CRYPTO_PUBLICKEYBYTES] = &mut [0; CRYPTO_PUBLICKEYBYTES];
+    let sk: &mut [u8; CRYPTO_SECRETKEYBYTES] = &mut [0; CRYPTO_SECRETKEYBYTES];
+    let mut seed: [u8; NTRU_SAMPLE_FG_BYTES] = [0; NTRU_SAMPLE_FG_BYTES];
+    let comparison_pk: &mut [u8; CRYPTO_PUBLICKEYBYTES] = &mut [0; CRYPTO_PUBLICKEYBYTES];
+    let comparison_sk: &mut [u8; CRYPTO_SECRETKEYBYTES] = &mut [0; CRYPTO_SECRETKEYBYTES];
+    let mut comparison_seed: [u8; NTRU_SAMPLE_FG_BYTES] = [0; NTRU_SAMPLE_FG_BYTES];
+    pk.copy_from_slice(&pk_vec[..CRYPTO_PUBLICKEYBYTES]);
+    sk.copy_from_slice(&sk_vec[..CRYPTO_SECRETKEYBYTES]);
+    seed.copy_from_slice(&seed_vec[..NTRU_SAMPLE_FG_BYTES]);
+    comparison_pk.copy_from_slice(&comparison_pk_vec[..CRYPTO_PUBLICKEYBYTES]);
+    comparison_sk.copy_from_slice(&comparison_sk_vec[..CRYPTO_SECRETKEYBYTES]);
+    comparison_seed.copy_from_slice(&comparison_seed_vec[..NTRU_SAMPLE_FG_BYTES]);
+    owcpa_keypair(pk, sk, seed);
+    assert_eq!(pk, comparison_pk);
+    assert_eq!(sk, comparison_sk);
+    assert_eq!(seed, comparison_seed);
+    TEST_PASS
 }

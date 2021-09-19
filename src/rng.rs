@@ -39,12 +39,12 @@ fn aes256_ecb(
 }
 
 
-pub fn randombytes(x: &mut [u8], &mut xlen: u64, drbg_ctx: &mut Aes256CtrDrbgStruct) -> i32 {
+pub fn randombytes(x: &mut [u8], xlen: &mut u64, drbg_ctx: &mut Aes256CtrDrbgStruct) -> i32 {
     let mut block: [u8; 16] = [0; 16];
     let mut i = 0;
 
-    let mut j = 15;
-    while xlen > 0 {
+    while *xlen > 0 {
+        let mut j = 15;
         while j >= 0 {
             if drbg_ctx.v[j] == 0xff {
                 drbg_ctx.v[j] = 0x00;
@@ -57,15 +57,15 @@ pub fn randombytes(x: &mut [u8], &mut xlen: u64, drbg_ctx: &mut Aes256CtrDrbgStr
         }
         aes256_ecb(&mut drbg_ctx.key, &mut drbg_ctx.v, &mut block);
     }
-    if xlen > 15 {
+    if *xlen > 15 {
         x[i..].copy_from_slice(&block[..16]);
         i += 16;
-        xlen -= 16;
+        *xlen -= 16;
     } else {
-        x[xlen..].copy_from_slice(&block[..xlen]);
-        xlen = 0;
+        x[*xlen as usize..].copy_from_slice(&block[..*xlen as usize]);
+        *xlen = 0;
     }
-    let &mut provided_data: Option<[u8; 48]> = None;
+    let provided_data: &mut Option<[u8; 48]> = &mut None;
     aes256_ctr_drbg_update(provided_data, &mut drbg_ctx.key, &mut drbg_ctx.v);
     drbg_ctx.reseed_counter += 1;
     RNG_SUCCESS
@@ -77,24 +77,27 @@ fn aes256_ctr_drbg_update(
     v: &mut [u8; 16]
 ) {
     let mut temp: [u8; 48] = [0; 48];
-    for _ in 0..3 {
+    let mut buffer: [u8; 16] = [0; 16];
+
+    for i in 0..3 {
+        let mut j = 15;
         while j >= 0 {
-            if drbg_ctx.v[j] == 0xff {
-                drbg_ctx.v[j] = 0x00;
+            if v[j] == 0xff {
+                v[j] = 0x00;
             }
             else {
-                drbg_ctx.v[j] += 1;
+                v[j] += 1;
                 break;
             }
             j-= 1;
         }
+        buffer.copy_from_slice(&temp[16*i..16*i + 16]);
     }
-    let mut buffer: [u8; 16] = [0; 16];
-    buffer.copy_from_slice(&temp[16*i.. 16*i + 16]);
+
     aes256_ecb(key, v, &mut buffer);
     if provided_data.is_some() {
         for i in 0..48 {
-            temp[i] ^= provided_data[i];
+            temp[i] ^= (provided_data.unwrap())[i];
         }
     }
     key[..32].copy_from_slice(&temp[..32]);

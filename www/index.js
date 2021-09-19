@@ -1,4 +1,5 @@
 import * as wasm from "crypto_test";
+import {runTests} from "./test_run";
 
 const DEFAULT_RANDOM_BYTES = 128;
 
@@ -16,9 +17,10 @@ document.addEventListener('click', function (event) {
         '#hash-start',
         '#activate-comparison',
         '#toggle-test-functions',
-        '#encryption-start'
+        '#encryption-start',
+        '#run-tests'
     ];
-    let matches = false;
+    let matches        = false;
     allowed_events.forEach(item => {
         if (event.target.matches(item)) {
             matches = true;
@@ -28,26 +30,26 @@ document.addEventListener('click', function (event) {
         return;
     }
 
-    switch(event.target.id) {
+    switch (event.target.id) {
         case 'random-bytes':
             let num_bytes = BigInt(document.getElementById('num-bytes').value);
 
-            if(num_bytes === 0n || num_bytes === undefined || num_bytes === null) {
+            if (num_bytes === 0n || num_bytes === undefined || num_bytes === null) {
                 num_bytes = BigInt(DEFAULT_RANDOM_BYTES);
             }
             alert(wasm.get_random_bytes(num_bytes));
             break;
         case 'hash-start':
-            let input = document.getElementById('hash-input').value;
-            let reference = document.getElementById('hash-reference');
+            let input                 = document.getElementById('hash-input').value;
+            let reference             = document.getElementById('hash-reference');
             let hash_algorithm_radios = document.getElementsByName('hash_algorithm');
-            let hash = "";
+            let hash                  = "";
             for (let i = 0, length = hash_algorithm_radios.length; i < length; i++) {
                 if (hash_algorithm_radios[i].checked) {
                     hash = wasm.tiny_keccak(input, hash_algorithm_radios[i].value);
                 }
             }
-            let hexHash = hexHashDisplayBuilder(hash);
+            let hexHash         = hexHashDisplayBuilder(hash);
             reference.innerHTML = hexHash;
             if (DO_COMPARISON) {
                 let comparison_textarea = document.getElementById('hash-comparison');
@@ -57,20 +59,20 @@ document.addEventListener('click', function (event) {
             }
             break;
         case 'activate-comparison':
-            let comparison_textarea = document.getElementById('hash-comparison');
-            let comparison_checkbox = document.getElementById('activate-comparison');
+            let comparison_textarea           = document.getElementById('hash-comparison');
+            let comparison_checkbox           = document.getElementById('activate-comparison');
             comparison_textarea.style.display = comparison_checkbox.checked ? "block" : "none";
-            DO_COMPARISON = comparison_checkbox.checked ? 1 : 0;
+            DO_COMPARISON                     = comparison_checkbox.checked ? 1 : 0;
             break;
         case 'toggle-test-functions':
-            let test_function_row = document.getElementById('test-functions');
-            let display_class = (test_function_row.style.display === "none" || test_function_row.style.display === "") ? "block" : "none";
+            let test_function_row           = document.getElementById('test-functions');
+            let display_class               = (test_function_row.style.display === "none" || test_function_row.style.display === "") ? "block" : "none";
             test_function_row.style.display = display_class;
             break;
         case 'encryption-start':
             wasm.crypto_kem_keypair();
             break;
+        case 'run-tests':
+            runTests();
     }
-
-
 }, false);
