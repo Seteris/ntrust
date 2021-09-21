@@ -25,6 +25,8 @@ pub mod api;
 pub mod owcpa;
 mod poly_lift;
 mod rng;
+mod kem;
+mod cmov;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.

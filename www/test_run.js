@@ -7,7 +7,6 @@ let failed_tests = [];
 
 export function runTests() {
     let pass = false;
-    // TODO: Convert every array returned to an Uint8Array before using it
     for (let i = 1; i <= 10; i++) {
         let chunk = provideData(i);
         for (let j = 0; j < chunk.length; j++) {

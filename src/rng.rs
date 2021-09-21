@@ -1,3 +1,6 @@
+use aes::{Aes256, NewBlockCipher, BlockEncrypt};
+use aes::cipher::Block;
+
 const RNG_SUCCESS: i32 = 0;
 const RNG_BAD_MAXLEN: i32 = -1;
 const RNG_BAD_OUTBUF: i32 = -2;
@@ -35,7 +38,9 @@ fn aes256_ecb(
     ctr: &mut [u8; 16],
     buffer: &mut [u8; 16]
 ) {
-    // TODO
+    // TODO: CTR MODE, Generic Array
+    let cipher = Aes256::new(&key);
+    cipher.encrypt_block(buffer);
 }
 
 
