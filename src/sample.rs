@@ -34,19 +34,23 @@ pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_B
 pub fn sample_rm(
     r: &mut Poly,
     m: &mut Poly,
-    uniformbytes: [u8; NTRU_SAMPLE_RM_BYTES]
+    uniformbytes: [u8; NTRU_SAMPLE_RM_BYTES],
 ) {
     #[cfg(feature = "ntruhrss701")] {
-        sample_iid(r, uniformbytes);
-        let mut bytes: [u8; NTRU_SAMPLE_RM_BYTES - NTRU_SAMPLE_IID_BYTES] = [0; NTRU_SAMPLE_RM_BYTES - NTRU_SAMPLE_IID_BYTES];
+        let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0; NTRU_SAMPLE_IID_BYTES];
+        bytes.copy_from_slice(&uniformbytes[..NTRU_SAMPLE_IID_BYTES]);
+        sample_iid(r, bytes);
+        bytes = [0; NTRU_SAMPLE_RM_BYTES - NTRU_SAMPLE_IID_BYTES];
         bytes.copy_from_slice(&uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
         sample_iid(m, bytes);
     }
     #[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))] {
-        sample_iid(r, uniformbytes);
-        let mut bytes: [u8; NTRU_SAMPLE_RM_BYTES - NTRU_SAMPLE_IID_BYTES] = [0; NTRU_SAMPLE_RM_BYTES - NTRU_SAMPLE_IID_BYTES];
-        bytes.copy_from_slice(&uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
-        sample_fixed_type(m, bytes);
+        let mut to_iid_bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0; NTRU_SAMPLE_IID_BYTES];
+        to_iid_bytes.copy_from_slice(&uniformbytes[..NTRU_SAMPLE_IID_BYTES]);
+        sample_iid(r, to_iid_bytes);
+        let mut from_iid_bytes: [u8; NTRU_SAMPLE_RM_BYTES - NTRU_SAMPLE_IID_BYTES] = [0; NTRU_SAMPLE_RM_BYTES - NTRU_SAMPLE_IID_BYTES];
+        from_iid_bytes.copy_from_slice(&uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
+        sample_fixed_type(m, from_iid_bytes);
     }
 }
 

@@ -8,9 +8,9 @@ pub fn cmov(
     len: isize,
     b: u8
 ) {
-    let b_temp = (!b + 1);
+    let b_temp = !b + 1;
 
-    for i in 0..len {
+    for i in 0usize..len as usize {
         r[i] ^= b_temp & (x[i] ^ r[i]);
     }
 }

@@ -33,6 +33,7 @@ pub const NTRU_SAMPLE_RM_BYTES: usize = NTRU_SAMPLE_IID_BYTES + NTRU_SAMPLE_FT_B
 pub const NTRU_SAMPLE_RM_BYTES: usize = 2 * NTRU_SAMPLE_IID_BYTES;
 
 pub const NTRU_PRFKEYBYTES: usize = 32;
+pub const NTRU_SHAREDKEYBYTES: usize = 32;
 
 pub const NTRU_PACK_DEG: usize = NTRU_N - 1;
 pub const NTRU_PACK_TRINARY_BYTES: usize = (NTRU_PACK_DEG + 4) / 5;
