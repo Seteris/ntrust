@@ -4,7 +4,8 @@ use tiny_keccak::Shake;
 use wasm_bindgen::prelude::*;
 use web_sys;
 
-use crate::api::{CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES};
+use crate::api::{CRYPTO_BYTES, CRYPTO_CIPHERTEXTBYTES, CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES};
+use crate::kem::{crypto_kem_dec, crypto_kem_enc, crypto_kem_keypair};
 use crate::owcpa::owcpa_keypair;
 use crate::params::{NTRU_OWCPA_SECRETKEYBYTES, NTRU_PRFKEYBYTES, NTRU_SAMPLE_FG_BYTES};
 use crate::rng::{Aes256CtrDrbgStruct, randombytes};
@@ -122,6 +123,30 @@ pub fn shake_wrapper(input: String, target: i8) -> Vec<u8> {
     result
 }
 
+
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( $t )* ).into());
+    }
+}
+
+#[wasm_bindgen]
+pub fn ntru_bench() {
+    log!("Starting Bench");
+    let pk: &mut [u8; CRYPTO_PUBLICKEYBYTES] = &mut [0; CRYPTO_PUBLICKEYBYTES];
+    let sk: &mut [u8; CRYPTO_SECRETKEYBYTES] = &mut [0; CRYPTO_SECRETKEYBYTES];
+    let c: &mut [u8; CRYPTO_CIPHERTEXTBYTES] = &mut [0; CRYPTO_CIPHERTEXTBYTES];
+    let k: &mut [u8; CRYPTO_BYTES] = &mut [0; CRYPTO_BYTES];
+    let aes256ctrdrbg = &mut Aes256CtrDrbgStruct::new();
+    log!("Running Keypair");
+    crypto_kem_keypair(pk, sk, aes256ctrdrbg);
+    log!("Running Enc");
+    crypto_kem_enc(c, k, pk, aes256ctrdrbg);
+    log!("Running Dec");
+    crypto_kem_dec(k, c, sk);
+    log!("DONE");
+}
+
 const TEST_PASS: i32 = 0;
 const PARAMETER_SIZE_INVALID: i32 = 1;
 
@@ -132,7 +157,7 @@ pub fn crypto_kem_keypair_test(
     mut seed_vec: Vec<u8>,
     comparison_pk_vec: Vec<u8>,
     comparison_sk_vec: Vec<u8>,
-    comparison_seed_vec: Vec<u8>
+    comparison_seed_vec: Vec<u8>,
 ) -> i32 {
     if pk_vec.len() != CRYPTO_PUBLICKEYBYTES ||
         sk_vec.len() != CRYPTO_SECRETKEYBYTES ||

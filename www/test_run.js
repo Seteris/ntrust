@@ -13,7 +13,6 @@ export function runTests() {
     for (let i = 1; i <= 10; i++) {
         let chunk = provideData(i);
         for (let j = 0; j < chunk.length; j++) {
-            console.log(chunk[j]);
             pass = runTest(chunk[j][2], chunk[j][3], chunk[j][1]);
             if (pass === false) {
                 failed_tests.push(chunk[j][0]);

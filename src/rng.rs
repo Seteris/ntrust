@@ -52,13 +52,13 @@ pub fn randombytes(x: &mut [u8], xlen: &mut u64, drbg_ctx: &mut Aes256CtrDrbgStr
     let mut i = 0;
 
     while *xlen > 0 {
-        let mut j = 15;
+        let mut j: isize = 15;
         while j >= 0 {
-            if drbg_ctx.v[j] == 0xff {
-                drbg_ctx.v[j] = 0x00;
+            if drbg_ctx.v[j as usize] == 0xff {
+                drbg_ctx.v[j as usize] = 0x00;
             }
             else {
-                drbg_ctx.v[j] += 1;
+                drbg_ctx.v[j as usize] += 1;
                 break;
             }
             j-= 1;

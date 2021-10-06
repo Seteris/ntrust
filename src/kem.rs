@@ -1,4 +1,5 @@
 use tiny_keccak::{Hasher, Sha3};
+
 use crate::api::{CRYPTO_BYTES, CRYPTO_CIPHERTEXTBYTES, CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES};
 use crate::cmov::cmov;
 use crate::owcpa::{owcpa_dec, owcpa_enc, owcpa_keypair};
@@ -8,55 +9,36 @@ use crate::poly::{Poly, poly_z3_to_zq};
 use crate::rng::{Aes256CtrDrbgStruct, randombytes};
 use crate::sample::sample_rm;
 
-macro_rules! log {
-    ( $( $t:tt )* ) => {
-        web_sys::console::log_1(&format!( $( $t )* ).into());
-    }
-}
-
 // TODO: create function calling kem_keypair/_enc/_dec
 // TODO: instantiate aes256drbgstruct in aforementioned function
-
-#[wasm_bindgen]
-pub fn crypto_kem_keypair() {
-    let mut pk: [u8; CRYPTO_PUBLICKEYBYTES] = [0; CRYPTO_PUBLICKEYBYTES];
-    let mut sk: [u8; CRYPTO_SECRETKEYBYTES] = [0; CRYPTO_SECRETKEYBYTES];
+pub fn crypto_kem_keypair(mut pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
+                          mut sk: &mut [u8; CRYPTO_SECRETKEYBYTES],
+                          mut aes256ctrdrbg: &mut Aes256CtrDrbgStruct) {
     let mut seed: [u8; NTRU_SAMPLE_FG_BYTES] = [0; NTRU_SAMPLE_FG_BYTES];
 
-    let aes_ctr_drbg: &mut Aes256CtrDrbgStruct = &mut Aes256CtrDrbgStruct::new();
-    randombytes(&mut seed, &mut (NTRU_SAMPLE_FG_BYTES as u64), aes_ctr_drbg);
+    randombytes(&mut seed, &mut (NTRU_SAMPLE_FG_BYTES as u64), aes256ctrdrbg);
 
     owcpa_keypair(&mut pk, &mut sk, seed);
 
     let mut sk_copy: [u8; NTRU_PRFKEYBYTES] = [0; NTRU_PRFKEYBYTES];
     sk_copy.copy_from_slice(&sk[NTRU_OWCPA_SECRETKEYBYTES..]);
-    randombytes(&mut sk_copy, &mut (NTRU_PRFKEYBYTES as u64), aes_ctr_drbg);
+    randombytes(&mut sk_copy, &mut (NTRU_PRFKEYBYTES as u64), aes256ctrdrbg);
     sk[NTRU_OWCPA_SECRETKEYBYTES..].copy_from_slice(&sk_copy);
-
-    log!("----PK----");
-    log!("{:x?}", pk);
-    log!("----SK----");
-    log!("{:x?}", sk);
-    log!("----Seed----");
-    log!("{:x?}", seed);
 }
 
 pub fn crypto_kem_enc(
     c: &mut [u8; CRYPTO_CIPHERTEXTBYTES],
     k: &mut [u8; CRYPTO_BYTES],
     pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
+    aes256ctrdrbg: &mut Aes256CtrDrbgStruct,
 ) {
     let r: &mut Poly = &mut Poly::new();
     let m: &mut Poly = &mut Poly::new();
     let rm: &mut [u8; NTRU_OWCPA_MSGBYTES] = &mut [0; NTRU_OWCPA_MSGBYTES];
     let rm_seed: &mut [u8; NTRU_SAMPLE_RM_BYTES] = &mut [0; NTRU_SAMPLE_RM_BYTES];
 
-    // TODO: 3rd parameter type Aes256CtrDrbgStruct in function signature
-    // is global in c implementation
-    // FIXME: Add main() routine, initialising struct and passing as parameter
-    let aes256ctr = &mut Aes256CtrDrbgStruct::new();
     let xlen: &mut u64 = &mut (NTRU_SAMPLE_RM_BYTES as u64);
-    randombytes(rm_seed, xlen, aes256ctr);
+    randombytes(rm_seed, xlen, aes256ctrdrbg);
 
     sample_rm(r, m, *rm_seed);
 
