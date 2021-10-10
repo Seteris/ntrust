@@ -8,11 +8,13 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [features]
-default = ["ntruhps2048509"]
-ntruhps2048509 = []
-ntruhps2048677 = []
-ntruhps4096821 = []
-ntruhrss701 = []
+default = []
+ntruhps2048509 = ['ntruhps']
+ntruhps2048677 = ['ntruhps']
+ntruhps4096821 = ['ntruhps']
+ntruhrss701 = ['ntruhrss']
+ntruhps = []
+ntruhrss = []
 
 [dependencies]
 wasm-bindgen = "0.2.76"

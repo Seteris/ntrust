@@ -18,6 +18,7 @@ fn main() {
 
     if target_feature == ""
     {
-        panic!("Configuration error: No features selected. Please specify a feature for this crate.");
+        println!("cargo:rustc-cfg=feature=\"ntruhps2048509\"");
+        println!("cargo:rustc-cfg=feature=\"ntruhps\"");
     }
 }
