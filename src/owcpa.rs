@@ -44,7 +44,7 @@ pub fn owcpa_check_r(r: &Poly) -> u32 {
     1 & ((!t + 1) >> 31)
 }
 
-#[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))]
+#[cfg(feature = "ntruhps")]
 pub fn owcpa_check_m(m: &Poly) -> u32 {
     /* Check that m is in message space, i.e.                  */
     /*  (1)  |{i : m[i] = 1}| = |{i : m[i] = 2}|, and          */
@@ -113,7 +113,7 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
         g.coeffs[0] = 0 - (3 * g.coeffs[0]);
     }
 
-    #[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))] {
+    #[cfg(feature = "ntruhps")] {
         /* g = 3*g */
         for i in 0..NTRU_N {
             g.coeffs[i] = 3 * g.coeffs[i];
@@ -194,7 +194,7 @@ pub fn owcpa_dec(rm: &mut [u8], ciphertext: &[u8], secretkey: &[u8; CRYPTO_SECRE
     /* We can avoid re-computing r*h + Lift(m) as long as we check that        */
     /* r (defined as b/h mod (q, Phi_n)) and m are in the message space.       */
     /* (m can take any value in S3 in NTRU_HRSS) */
-    #[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))] {
+    #[cfg(feature = "ntruhps")] {
         fail |= owcpa_check_m(x4) as u16;
     }
 

@@ -9,9 +9,9 @@ pub const NTRU_LOGQ: usize = 11;
 pub const NTRU_N: usize = 821;
 #[cfg(feature = "ntruhps4096821")]
 pub const NTRU_LOGQ: usize = 12;
-#[cfg(feature = "ntruhrss701")]
+#[cfg(feature = "ntruhrss")]
 pub const NTRU_N: usize = 701;
-#[cfg(feature = "ntruhrss701")]
+#[cfg(feature = "ntruhrss")]
 pub const NTRU_LOGQ: usize = 13;
 
 pub const NTRU_Q: usize = 1 << NTRU_LOGQ;
@@ -22,14 +22,14 @@ pub const NTRU_SAMPLE_IID_BYTES: usize = NTRU_N - 1;
 
 pub const NTRU_SAMPLE_FT_BYTES: usize = (30 * (NTRU_N - 1) + 7) / 8;
 
-#[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))]
+#[cfg(feature = "ntruhps")]
 pub const NTRU_SAMPLE_FG_BYTES: usize = NTRU_SAMPLE_IID_BYTES + NTRU_SAMPLE_FT_BYTES;
-#[cfg(feature = "ntruhrss701")]
+#[cfg(feature = "ntruhrss")]
 pub const NTRU_SAMPLE_FG_BYTES: usize = 2 * NTRU_SAMPLE_IID_BYTES;
 
-#[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))]
+#[cfg(feature = "ntruhps")]
 pub const NTRU_SAMPLE_RM_BYTES: usize = NTRU_SAMPLE_IID_BYTES + NTRU_SAMPLE_FT_BYTES;
-#[cfg(feature = "ntruhrss701")]
+#[cfg(feature = "ntruhrss")]
 pub const NTRU_SAMPLE_RM_BYTES: usize = 2 * NTRU_SAMPLE_IID_BYTES;
 
 pub const NTRU_PRFKEYBYTES: usize = 32;
