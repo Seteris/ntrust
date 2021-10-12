@@ -1,5 +1,5 @@
 /* assume 2 <= n <= 0x40000000 */
-#[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))]
+#[cfg(feature = "ntruhps")]
 fn int32_minmax(a: &mut i32, b: &mut i32) {
     let ab = (*b) ^ (*a);
     let mut c = (*b as i64 - *a as i64) as i32;
@@ -10,14 +10,8 @@ fn int32_minmax(a: &mut i32, b: &mut i32) {
     *(b) ^= c;
 }
 
-#[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))]
+#[cfg(feature = "ntruhps")]
 pub fn crypto_sort_int32(array: &mut [i32], n: usize) {
-    // size_t top,p,q,r,i,j;
-    // int32 *x = array;
-    //
-    // top = 1;
-    // while (top < n - top) top += top;
-
     let mut top: isize = 1;
     let mut p: isize;
     let mut q: isize;

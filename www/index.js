@@ -1,5 +1,6 @@
 import * as wasm from "crypto_test";
 import {runTests} from "./test_run";
+import {runBench} from "./bench_run";
 
 const DEFAULT_RANDOM_BYTES = 128;
 
@@ -9,8 +10,15 @@ function hexHashDisplayBuilder(hash_array) {
     return Array.prototype.map.call(hash_array, x => ('00' + x.toString()).slice(-2)).join('');
 }
 
-document.addEventListener('click', function (event) {
+function displayAverageTime(times) {
+    let sum = 0;
+    for (let i = 0; i < times.length; i++) {
+        sum += times[i];
+    }
+    console.log("Total time of " + times.length + " runs is " + sum + "ms. Average per run: " + (sum / times.length) + "ms.");
+}
 
+document.addEventListener('click', function (event) {
     // If the clicked element doesn't have the right selector, bail
     let allowed_events = [
         '#random-bytes',
@@ -18,7 +26,8 @@ document.addEventListener('click', function (event) {
         '#activate-comparison',
         '#toggle-test-functions',
         '#encryption-start',
-        '#run-tests'
+        '#run-tests',
+        '#run-bench',
     ];
     let matches        = false;
     allowed_events.forEach(item => {
@@ -74,5 +83,10 @@ document.addEventListener('click', function (event) {
             break;
         case 'run-tests':
             runTests();
+            break;
+        case 'run-bench':
+            let runTimes = runBench(1);
+            displayAverageTime(runTimes);
+            break;
     }
 }, false);

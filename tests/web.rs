@@ -49,4 +49,3 @@ fn test_owcpa_keypair() {
         }
     }
 }
-

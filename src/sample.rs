@@ -1,6 +1,6 @@
-#[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))]
+#[cfg(feature = "ntruhps")]
 use crate::crypto_sort_int32;
-use crate::params::{NTRU_N, NTRU_SAMPLE_FG_BYTES, NTRU_SAMPLE_FT_BYTES, NTRU_SAMPLE_IID_BYTES, NTRU_WEIGHT};
+use crate::params::{NTRU_N, NTRU_SAMPLE_FG_BYTES, NTRU_SAMPLE_FT_BYTES, NTRU_SAMPLE_IID_BYTES, NTRU_SAMPLE_RM_BYTES, NTRU_WEIGHT};
 use crate::poly::Poly;
 use crate::sample_iid::sample_iid;
 
@@ -13,13 +13,14 @@ macro_rules! log {
 pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_BYTES]) {
     #[cfg(feature = "ntruhrss701")] {
         log!("NTRUHRSS sample_fg");
+        // FIXME: Check for size error
         let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0u8; NTRU_SAMPLE_IID_BYTES];
         bytes.copy_from_slice(&uniformbytes[..NTRU_N]);
         sample_iid_plus(f, bytes);
         bytes.copy_from_slice(&uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
         sample_iid_plus(f, bytes);
     }
-    #[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))] {
+    #[cfg(feature = "ntruhps")] {
         log!("NTRUHPS sample_fg");
         let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0u8; NTRU_SAMPLE_IID_BYTES];
         bytes.copy_from_slice(&uniformbytes[..NTRU_N - 1]);
@@ -27,6 +28,29 @@ pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_B
         let mut fixed_type_bytes: [u8; NTRU_SAMPLE_FG_BYTES - NTRU_SAMPLE_IID_BYTES] = [0; NTRU_SAMPLE_FG_BYTES - NTRU_SAMPLE_IID_BYTES];
         fixed_type_bytes.copy_from_slice(&uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
         sample_fixed_type(g, fixed_type_bytes);
+    }
+}
+
+pub fn sample_rm(
+    r: &mut Poly,
+    m: &mut Poly,
+    uniformbytes: [u8; NTRU_SAMPLE_RM_BYTES],
+) {
+    #[cfg(feature = "ntruhrss701")] {
+        let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0; NTRU_SAMPLE_IID_BYTES];
+        bytes.copy_from_slice(&uniformbytes[..NTRU_SAMPLE_IID_BYTES]);
+        sample_iid(r, bytes);
+        bytes = [0; NTRU_SAMPLE_RM_BYTES - NTRU_SAMPLE_IID_BYTES];
+        bytes.copy_from_slice(&uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
+        sample_iid(m, bytes);
+    }
+    #[cfg(feature = "ntruhps")] {
+        let mut to_iid_bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0; NTRU_SAMPLE_IID_BYTES];
+        to_iid_bytes.copy_from_slice(&uniformbytes[..NTRU_SAMPLE_IID_BYTES]);
+        sample_iid(r, to_iid_bytes);
+        let mut from_iid_bytes: [u8; NTRU_SAMPLE_RM_BYTES - NTRU_SAMPLE_IID_BYTES] = [0; NTRU_SAMPLE_RM_BYTES - NTRU_SAMPLE_IID_BYTES];
+        from_iid_bytes.copy_from_slice(&uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
+        sample_fixed_type(m, from_iid_bytes);
     }
 }
 
@@ -63,7 +87,7 @@ pub fn sample_iid_plus(r: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_IID_BYTES]) 
 
 #[allow(arithmetic_overflow)]
 #[allow(unconditional_panic)]
-#[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))]
+#[cfg(feature = "ntruhps")]
 fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
     // Assumes NTRU_SAMPLE_FT_BYTES = ceil(30*(n-1)/8)
 
@@ -117,8 +141,9 @@ fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
     for i in (NTRU_WEIGHT / 2)..NTRU_WEIGHT {
         s[i] |= 2;
     }
-    #[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))]
+    #[cfg(feature = "ntruhps")] {
         crypto_sort_int32::crypto_sort_int32(&mut s, NTRU_N - 1);
+    }
 
     // for(i=0; i<NTRU_N-1; i++)
     // r->coeffs[i] = ((uint16_t) (s[i] & 3));

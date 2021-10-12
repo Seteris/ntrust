@@ -1,3 +1,7 @@
+use aes::{Aes256, BlockEncrypt, NewBlockCipher};
+use aes::cipher::Block;
+use ctr::cipher::{NewCipher, StreamCipher, StreamCipherSeek};
+
 const RNG_SUCCESS: i32 = 0;
 const RNG_BAD_MAXLEN: i32 = -1;
 const RNG_BAD_OUTBUF: i32 = -2;
@@ -33,9 +37,13 @@ impl Aes256CtrDrbgStruct {
 fn aes256_ecb(
     key: &mut [u8; 32],
     ctr: &mut [u8; 16],
-    buffer: &mut [u8; 16]
+    mut buffer: &mut [u8; 16]
 ) {
-    // TODO
+    // TODO: CTR MODE, Generic Array
+    // TODO: IV is NULL
+    // type Aes128Ctr = ctr::Ctr128BE<aes::Aes128>;
+    // let mut cipher = Aes128Ctr::new(key.into(), [].into());
+    // cipher.apply_keystream(&mut buffer);
 }
 
 
@@ -44,16 +52,15 @@ pub fn randombytes(x: &mut [u8], xlen: &mut u64, drbg_ctx: &mut Aes256CtrDrbgStr
     let mut i = 0;
 
     while *xlen > 0 {
-        let mut j = 15;
+        let mut j: isize = 15;
         while j >= 0 {
-            if drbg_ctx.v[j] == 0xff {
-                drbg_ctx.v[j] = 0x00;
-            }
-            else {
-                drbg_ctx.v[j] += 1;
+            if drbg_ctx.v[j as usize] == 0xff {
+                drbg_ctx.v[j as usize] = 0x00;
+            } else {
+                drbg_ctx.v[j as usize] += 1;
                 break;
             }
-            j-= 1;
+            j -= 1;
         }
         aes256_ecb(&mut drbg_ctx.key, &mut drbg_ctx.v, &mut block);
     }
@@ -84,14 +91,13 @@ fn aes256_ctr_drbg_update(
         while j >= 0 {
             if v[j] == 0xff {
                 v[j] = 0x00;
-            }
-            else {
+            } else {
                 v[j] += 1;
                 break;
             }
-            j-= 1;
+            j -= 1;
         }
-        buffer.copy_from_slice(&temp[16*i..16*i + 16]);
+        buffer.copy_from_slice(&temp[16 * i..16 * i + 16]);
     }
 
     aes256_ecb(key, v, &mut buffer);

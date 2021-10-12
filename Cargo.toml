@@ -8,17 +8,21 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [features]
-default = ["ntruhps2048509"]
-ntruhps2048509 = []
-ntruhps2048677 = []
-ntruhps4096821 = []
-ntruhrss701 = []
+default = []
+ntruhps2048509 = ['ntruhps']
+ntruhps2048677 = ['ntruhps']
+ntruhps4096821 = ['ntruhps']
+ntruhrss701 = ['ntruhrss']
+ntruhps = []
+ntruhrss = []
 
 [dependencies]
 wasm-bindgen = "0.2.76"
 getrandom = { version = "0.2", features = ["js"] }
 web-sys = { version = "0.3.49", features = [ "console" ] }
 tiny-keccak = { version = "2.0.2", features = ["sha3", "shake"] }
+aes = "0.7.5"
+ctr = "0.8.0"
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires

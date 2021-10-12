@@ -2,7 +2,7 @@ use crate::params::NTRU_N;
 use crate::poly::{Poly, poly_z3_to_zq};
 use crate::poly_mod::poly_mod_3_phi_n;
 
-#[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))]
+#[cfg(feature = "ntruhps")]
 pub fn poly_lift(r: &mut Poly, a: &Poly) {
     for i in 0..NTRU_N {
         r.coeffs[i] = a.coeffs[i];
@@ -10,7 +10,7 @@ pub fn poly_lift(r: &mut Poly, a: &Poly) {
     poly_z3_to_zq(r);
 }
 
-#[cfg(feature = "ntruhrss701")]
+#[cfg(feature = "ntruhrss")]
 pub fn poly_lift(r: &mut Poly, a: &Poly) {
     /* NOTE: Assumes input is in {0,1,2}^N */
     /*       Produces output in [0,Q-1]^N */

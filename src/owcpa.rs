@@ -10,12 +10,6 @@ use crate::poly_rq_mul::poly_rq_mul;
 use crate::poly_s3_inv::poly_s3_inv;
 use crate::sample::sample_fg;
 
-macro_rules! log {
-    ( $( $t:tt )* ) => {
-        web_sys::console::log_1(&format!( $( $t )* ).into());
-    }
-}
-
 pub fn owcpa_check_ciphertext(ciphertext: &[u8]) -> u16 {
     /* A ciphertext is log2(q)*(n-1) bits packed into bytes.  */
     /* Check that any unused bits of the final byte are zero. */
@@ -44,7 +38,7 @@ pub fn owcpa_check_r(r: &Poly) -> u32 {
     1 & ((!t + 1) >> 31)
 }
 
-#[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))]
+#[cfg(feature = "ntruhps")]
 pub fn owcpa_check_m(m: &Poly) -> u32 {
     /* Check that m is in message space, i.e.                  */
     /*  (1)  |{i : m[i] = 1}| = |{i : m[i] = 2}|, and          */
@@ -72,9 +66,6 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
                      seed: [u8; NTRU_SAMPLE_FG_BYTES]) {
     let mut x3: Poly = Poly::new();
 
-    log!("owcpa_keypair");
-    log!("seed: {:x?}", seed);
-
     let f: &mut Poly = &mut Poly::new();
     let g: &mut Poly = &mut Poly::new();
     let invf_mod3: &mut Poly = &mut Poly::new();
@@ -85,7 +76,6 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
     // let invh: &mut Poly = &mut x3;
     // let h: &mut Poly = &mut x3;
     sample_fg(f, g, seed);
-    log!("f: {:x?}\ng: {:x?}\nseed: {:x?}", f.coeffs, g.coeffs, seed);
     poly_s3_inv(invf_mod3, f);
 
     let mut sk_bytes: [u8; NTRU_OWCPA_MSGBYTES] = [0u8; NTRU_OWCPA_MSGBYTES];
@@ -113,7 +103,7 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
         g.coeffs[0] = 0 - (3 * g.coeffs[0]);
     }
 
-    #[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))] {
+    #[cfg(feature = "ntruhps")] {
         /* g = 3*g */
         for i in 0..NTRU_N {
             g.coeffs[i] = 3 * g.coeffs[i];
@@ -134,7 +124,6 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
     poly_rq_mul(tmp, invgf, g);
     poly_rq_mul(&mut x3, tmp, g);
     poly_rq_sum_zero_tobytes(pk, &mut x3);
-    log!("owcpa_keypair done");
 }
 
 pub fn owcpa_enc(c: &mut [u8; CRYPTO_CIPHERTEXTBYTES],
@@ -194,7 +183,7 @@ pub fn owcpa_dec(rm: &mut [u8], ciphertext: &[u8], secretkey: &[u8; CRYPTO_SECRE
     /* We can avoid re-computing r*h + Lift(m) as long as we check that        */
     /* r (defined as b/h mod (q, Phi_n)) and m are in the message space.       */
     /* (m can take any value in S3 in NTRU_HRSS) */
-    #[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677", feature = "ntruhps4096821"))] {
+    #[cfg(feature = "ntruhps")] {
         fail |= owcpa_check_m(x4) as u16;
     }
 

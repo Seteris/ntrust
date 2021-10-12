@@ -1,6 +1,7 @@
+use std::num::Wrapping;
+
 use crate::params::{NTRU_LOGQ, NTRU_N};
 use crate::poly::{MODQ, Poly};
-use std::num::Wrapping;
 
 pub fn mod3(a: u16) -> u16 {
     let mut r: u16;
