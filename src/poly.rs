@@ -48,7 +48,6 @@ pub fn poly_s3_mul(r: &mut Poly, a: &Poly, b: &Poly) {
 }
 
 pub fn poly_r2_inv_to_rq_inv(r: &mut Poly, ai: Poly, a: &Poly) {
-    // TODO: change to compiler error macro
     if NTRU_Q <= 256 || NTRU_Q >= 65536 {
         panic!("poly_R2_inv_to_Rq_inv in poly.c assumes 256 < q < 65536");
     }

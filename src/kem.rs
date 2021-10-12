@@ -9,8 +9,6 @@ use crate::poly::{Poly, poly_z3_to_zq};
 use crate::rng::{Aes256CtrDrbgStruct, randombytes};
 use crate::sample::sample_rm;
 
-// TODO: create function calling kem_keypair/_enc/_dec
-// TODO: instantiate aes256drbgstruct in aforementioned function
 pub fn crypto_kem_keypair(mut pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
                           mut sk: &mut [u8; CRYPTO_SECRETKEYBYTES],
                           mut aes256ctrdrbg: &mut Aes256CtrDrbgStruct) {

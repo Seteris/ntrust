@@ -1,4 +1,4 @@
-use aes::{Aes256, NewBlockCipher, BlockEncrypt};
+use aes::{Aes256, BlockEncrypt, NewBlockCipher};
 use aes::cipher::Block;
 use ctr::cipher::{NewCipher, StreamCipher, StreamCipherSeek};
 
@@ -56,12 +56,11 @@ pub fn randombytes(x: &mut [u8], xlen: &mut u64, drbg_ctx: &mut Aes256CtrDrbgStr
         while j >= 0 {
             if drbg_ctx.v[j as usize] == 0xff {
                 drbg_ctx.v[j as usize] = 0x00;
-            }
-            else {
+            } else {
                 drbg_ctx.v[j as usize] += 1;
                 break;
             }
-            j-= 1;
+            j -= 1;
         }
         aes256_ecb(&mut drbg_ctx.key, &mut drbg_ctx.v, &mut block);
     }
@@ -92,14 +91,13 @@ fn aes256_ctr_drbg_update(
         while j >= 0 {
             if v[j] == 0xff {
                 v[j] = 0x00;
-            }
-            else {
+            } else {
                 v[j] += 1;
                 break;
             }
-            j-= 1;
+            j -= 1;
         }
-        buffer.copy_from_slice(&temp[16*i..16*i + 16]);
+        buffer.copy_from_slice(&temp[16 * i..16 * i + 16]);
     }
 
     aes256_ecb(key, v, &mut buffer);

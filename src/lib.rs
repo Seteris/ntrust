@@ -137,7 +137,7 @@ pub fn ntru_bench() {
     let sk: &mut [u8; CRYPTO_SECRETKEYBYTES] = &mut [0; CRYPTO_SECRETKEYBYTES];
     let c: &mut [u8; CRYPTO_CIPHERTEXTBYTES] = &mut [0; CRYPTO_CIPHERTEXTBYTES];
     let k: &mut [u8; CRYPTO_BYTES] = &mut [0; CRYPTO_BYTES];
-    let aes256ctrdrbg = &mut Aes256CtrDrbgStruct::new();
+    let aes256ctrdrbg: &mut Aes256CtrDrbgStruct = &mut Aes256CtrDrbgStruct::new();
     log!("Running Keypair");
     crypto_kem_keypair(pk, sk, aes256ctrdrbg);
     log!("Running Enc");
@@ -145,6 +145,18 @@ pub fn ntru_bench() {
     log!("Running Dec");
     crypto_kem_dec(k, c, sk);
     log!("DONE");
+}
+
+#[wasm_bindgen]
+pub fn ntru_encrypt() -> Vec<u8> {
+    let pk: &mut [u8; CRYPTO_PUBLICKEYBYTES] = &mut [0; CRYPTO_PUBLICKEYBYTES];
+    let sk: &mut [u8; CRYPTO_SECRETKEYBYTES] = &mut [0; CRYPTO_SECRETKEYBYTES];
+    let c: &mut [u8; CRYPTO_CIPHERTEXTBYTES] = &mut [0; CRYPTO_CIPHERTEXTBYTES];
+    let k: &mut [u8; CRYPTO_BYTES] = &mut [0; CRYPTO_BYTES];
+    let aes256ctrdrbg: &mut Aes256CtrDrbgStruct = &mut Aes256CtrDrbgStruct::new();
+    crypto_kem_keypair(pk, sk, aes256ctrdrbg);
+    crypto_kem_enc(c, k, pk, aes256ctrdrbg);
+    sk.to_vec()
 }
 
 const TEST_PASS: i32 = 0;

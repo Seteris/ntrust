@@ -12,12 +12,6 @@ fn int32_minmax(a: &mut i32, b: &mut i32) {
 
 #[cfg(feature = "ntruhps")]
 pub fn crypto_sort_int32(array: &mut [i32], n: usize) {
-    // size_t top,p,q,r,i,j;
-    // int32 *x = array;
-    //
-    // top = 1;
-    // while (top < n - top) top += top;
-
     let mut top: isize = 1;
     let mut p: isize;
     let mut q: isize;
