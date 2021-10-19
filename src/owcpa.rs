@@ -61,22 +61,34 @@ pub fn owcpa_check_m(m: &Poly) -> u32 {
     1 & ((!t + 1) >> 31)
 }
 
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( $t )* ).into());
+    }
+}
+
 pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
                      sk: &mut [u8; CRYPTO_SECRETKEYBYTES],
                      seed: [u8; NTRU_SAMPLE_FG_BYTES]) {
+    log!("starting owcpa_keypair");
     let mut x3: Poly = Poly::new();
+
+    log!("pk = {:?}", pk);
+    log!("sk = {:?}", sk);
+    log!("seed = {:?}", seed);
 
     let f: &mut Poly = &mut Poly::new();
     let g: &mut Poly = &mut Poly::new();
-    let invf_mod3: &mut Poly = &mut Poly::new();
 
     let invgf: &mut Poly = &mut Poly::new();
     let tmp: &mut Poly = &mut Poly::new();
+    // let invf_mod3: &mut Poly = &mut x3;
     // let gf: &mut Poly = &mut x3;
     // let invh: &mut Poly = &mut x3;
     // let h: &mut Poly = &mut x3;
+
     sample_fg(f, g, seed);
-    poly_s3_inv(invf_mod3, f);
+    poly_s3_inv(&mut x3, f);
 
     let mut sk_bytes: [u8; NTRU_OWCPA_MSGBYTES] = [0u8; NTRU_OWCPA_MSGBYTES];
     sk_bytes.copy_from_slice(&sk[..NTRU_OWCPA_MSGBYTES]);
@@ -86,12 +98,8 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
 
     let mut sk_msgbytes: [u8; NTRU_OWCPA_MSGBYTES] = [0u8; NTRU_OWCPA_MSGBYTES];
     sk_msgbytes.copy_from_slice(&sk[NTRU_PACK_TRINARY_BYTES..NTRU_OWCPA_MSGBYTES + NTRU_PACK_TRINARY_BYTES]);
-    poly_s3_tobytes(&mut sk_msgbytes, invf_mod3);
+    poly_s3_tobytes(&mut sk_msgbytes, &mut x3);
     sk[NTRU_PACK_TRINARY_BYTES..NTRU_OWCPA_MSGBYTES + NTRU_PACK_TRINARY_BYTES].copy_from_slice(&sk_msgbytes);
-
-    /* Lift coeffs of f and g from Z_p to Z_q */
-    poly_z3_to_zq(f);
-    poly_z3_to_zq(g);
 
     #[cfg(feature = "ntruhrss701")] {
         /* g = 3*(x-1)*g */
@@ -109,8 +117,16 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
             g.coeffs[i] = 3 * g.coeffs[i];
         }
     }
-
+    log!("x3 = {:?}", x3.coeffs);
+    // FIXME: check x3 correctness in poly_rq_mul
+    // FIXME: g.coeffs values after g = 3 * g
     poly_rq_mul(&mut x3, g, f);
+    log!("x3 = {:?}", x3.coeffs);
+    log!("g = {:?}", g.coeffs);
+    log!("f = {:?}", f.coeffs);
+    /* Lift coeffs of f and g from Z_p to Z_q */
+    poly_z3_to_zq(f);
+    poly_z3_to_zq(g);
     poly_rq_inv(invgf, &x3);
     poly_rq_mul(tmp, invgf, f);
     poly_sq_mul(&mut x3, tmp, f);
@@ -124,6 +140,7 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
     poly_rq_mul(tmp, invgf, g);
     poly_rq_mul(&mut x3, tmp, g);
     poly_rq_sum_zero_tobytes(pk, &mut x3);
+    log!("finished owcpa_keypair");
 }
 
 pub fn owcpa_enc(c: &mut [u8; CRYPTO_CIPHERTEXTBYTES],

@@ -2,9 +2,16 @@ use crate::params::{NTRU_N, NTRU_PACK_DEG};
 use crate::poly::MODQ;
 use crate::poly::Poly;
 
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( $t )* ).into());
+    }
+}
+
 #[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677"))]
 pub fn poly_sq_tobytes(r: &mut [u8],
                        a: &mut Poly) {
+    log!("starting poly_sq_tobytes with len r = {}", r.len());
     let mut t: [u16; 8] = [0; 8];
     let i: i16;
 
@@ -25,7 +32,7 @@ pub fn poly_sq_tobytes(r: &mut [u8],
         r[11 * i + 10] = (t[7] >> 3) as u8;
     }
 
-    i = (NTRU_PACK_DEG / 8) as i16;
+    i = (NTRU_PACK_DEG as i16 / 8);
     for j in 0..(NTRU_PACK_DEG as i16 - 8 * i) {
         t[j as usize] = MODQ(a.coeffs[(8 * i + j) as usize]);
     }
@@ -52,6 +59,7 @@ pub fn poly_sq_tobytes(r: &mut [u8],
         }
         _ => {}
     }
+    log!("finished poly_sq_tobytes");
 }
 
 #[cfg(feature = "ntruhps4096821")]
