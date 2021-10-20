@@ -11,6 +11,7 @@ use crypto_test::owcpa;
 use crypto_test::params;
 use crypto_test::params::NTRU_SAMPLE_FG_BYTES;
 use provider::{TEST_DATA_CHUNK_COUNT, TEST_DATA_CHUNK_SIZE};
+use test::Bencher;
 
 wasm_bindgen_test_configure!(run_in_browser);
 
@@ -48,4 +49,10 @@ fn test_owcpa_keypair() {
             assert_eq!(keypair_test_data.test_data[i].sk, keypair_comparison_data.test_data[i].sk, "\nSK differs in test {}", keypair_test_data.test_data[i].count);
         }
     }
+}
+
+#[cfg(feature = "bench")]
+fn bench_owcpa_keypair() {
+    let mut keypair_test_data = provider::OwcpaKeypairTestData::new();
+
 }
