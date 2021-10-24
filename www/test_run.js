@@ -20,7 +20,9 @@ export function runTests() {
         }
     }
     alert((passed_test_count + failed_test_count) + " tests run. " + passed_test_count + " passed. " + failed_test_count + " failed.");
-    console.log("List of failed tests: " + failed_tests);
+    if (failed_tests.length > 0) {
+        console.log("List of failed tests: " + failed_tests);
+    }
 }
 
 function runTest(comparison_pk, comparison_sk, seed) {
@@ -28,7 +30,6 @@ function runTest(comparison_pk, comparison_sk, seed) {
     let sk = new Uint8Array(935);
     try {
         let test_result = wasm.crypto_kem_keypair_test(pk, sk, seed, new Uint8Array(comparison_pk), new Uint8Array(comparison_sk), new Uint8Array(seed));
-        console.log(test_result);
         passed_test_count++;
         return true;
     } catch (e) {
