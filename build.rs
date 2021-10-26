@@ -3,7 +3,7 @@ use std::env;
 
 fn main() {
     match env::var_os("ntrust_bench") {
-        Some(val) => {
+        Some(_val) => {
             println!("cargo:rustc-cfg=feature=\"bench\"");
         },
         None => {},

@@ -123,7 +123,6 @@ pub fn shake_wrapper(input: String, target: i8) -> Vec<u8> {
     result
 }
 
-
 macro_rules! log {
     ( $( $t:tt )* ) => {
         web_sys::console::log_1(&format!( $( $t )* ).into());

@@ -50,9 +50,3 @@ fn test_owcpa_keypair() {
         }
     }
 }
-
-#[cfg(feature = "bench")]
-fn bench_owcpa_keypair() {
-    let mut keypair_test_data = provider::OwcpaKeypairTestData::new();
-
-}
