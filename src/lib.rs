@@ -191,7 +191,6 @@ pub fn crypto_kem_keypair_test(
     comparison_sk.copy_from_slice(&comparison_sk_vec[..CRYPTO_SECRETKEYBYTES]);
     comparison_seed.copy_from_slice(&comparison_seed_vec[..NTRU_SAMPLE_FG_BYTES]);
     owcpa_keypair(pk, sk, seed);
-    log!("Test run successfully");
     assert_eq!(pk, comparison_pk);
     assert_eq!(sk, comparison_sk);
     assert_eq!(seed, comparison_seed);

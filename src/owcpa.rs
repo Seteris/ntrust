@@ -61,6 +61,12 @@ pub fn owcpa_check_m(m: &Poly) -> u32 {
     1 & ((!t + 1) >> 31)
 }
 
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( $t )* ).into());
+    }
+}
+
 pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
                      sk: &mut [u8; CRYPTO_SECRETKEYBYTES],
                      seed: [u8; NTRU_SAMPLE_FG_BYTES]) {
@@ -68,15 +74,17 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
 
     let f: &mut Poly = &mut Poly::new();
     let g: &mut Poly = &mut Poly::new();
-    let invf_mod3: &mut Poly = &mut Poly::new();
 
     let invgf: &mut Poly = &mut Poly::new();
     let tmp: &mut Poly = &mut Poly::new();
+    // let invf_mod3: &mut Poly = &mut x3;
     // let gf: &mut Poly = &mut x3;
     // let invh: &mut Poly = &mut x3;
     // let h: &mut Poly = &mut x3;
+
     sample_fg(f, g, seed);
-    poly_s3_inv(invf_mod3, f);
+
+    poly_s3_inv(&mut x3, f);
 
     let mut sk_bytes: [u8; NTRU_OWCPA_MSGBYTES] = [0u8; NTRU_OWCPA_MSGBYTES];
     sk_bytes.copy_from_slice(&sk[..NTRU_OWCPA_MSGBYTES]);
@@ -86,7 +94,7 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
 
     let mut sk_msgbytes: [u8; NTRU_OWCPA_MSGBYTES] = [0u8; NTRU_OWCPA_MSGBYTES];
     sk_msgbytes.copy_from_slice(&sk[NTRU_PACK_TRINARY_BYTES..NTRU_OWCPA_MSGBYTES + NTRU_PACK_TRINARY_BYTES]);
-    poly_s3_tobytes(&mut sk_msgbytes, invf_mod3);
+    poly_s3_tobytes(&mut sk_msgbytes, &mut x3);
     sk[NTRU_PACK_TRINARY_BYTES..NTRU_OWCPA_MSGBYTES + NTRU_PACK_TRINARY_BYTES].copy_from_slice(&sk_msgbytes);
 
     /* Lift coeffs of f and g from Z_p to Z_q */
@@ -109,18 +117,19 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
             g.coeffs[i] = 3 * g.coeffs[i];
         }
     }
-
     poly_rq_mul(&mut x3, g, f);
+
     poly_rq_inv(invgf, &x3);
     poly_rq_mul(tmp, invgf, f);
     poly_sq_mul(&mut x3, tmp, f);
 
     const SK_PACK_TRINARY_BYTE_SIZE: usize = CRYPTO_SECRETKEYBYTES - 2 * NTRU_PACK_TRINARY_BYTES;
     let mut sk_pack_trinary_bytes: [u8; SK_PACK_TRINARY_BYTE_SIZE] = [0u8; SK_PACK_TRINARY_BYTE_SIZE];
+
     sk_pack_trinary_bytes.copy_from_slice(&sk[2 * NTRU_PACK_TRINARY_BYTES..]);
+    log!("sk_end = {:?}", sk_pack_trinary_bytes);
     poly_sq_tobytes(&mut sk_pack_trinary_bytes, &mut x3);
     sk[2 * NTRU_PACK_TRINARY_BYTES..].copy_from_slice(&sk_pack_trinary_bytes);
-
     poly_rq_mul(tmp, invgf, g);
     poly_rq_mul(&mut x3, tmp, g);
     poly_rq_sum_zero_tobytes(pk, &mut x3);

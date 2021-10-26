@@ -30,19 +30,27 @@ fn test_owcpa_keypair() {
         keypair_comparison_data.provide_comparison_data(chunk as i32);
         for i in 0..TEST_DATA_CHUNK_SIZE {
             console_log!("Running Test with params:\n\
-            pk: {:x?}\n\
-            sk: {:x?}\n\
-            seed:{:x?}",
+            pk: {:x?}\nLength: {}\n\
+            sk: {:x?}\nLength: {}\n\
+            seed:{:x?}\nLength: {}\n",
                 keypair_test_data.test_data[i].pk,
+                keypair_test_data.test_data[i].pk.len(),
                 keypair_test_data.test_data[i].sk,
-                keypair_test_data.test_data[i].seed);
+                keypair_test_data.test_data[i].sk.len(),
+                keypair_test_data.test_data[i].seed,
+                keypair_test_data.test_data[i].seed.len()
+            );
             console_log!("Expecting to get:\n\
-            pk: {:x?}\n\
-            sk: {:x?}\n\
-            seed:{:x?}",
+            pk: {:x?}\nLength: {}\n\
+            sk: {:x?}\nLength: {}\n\
+            seed:{:x?}\nLength: {}\n",
                 keypair_comparison_data.test_data[i].pk,
+                keypair_comparison_data.test_data[i].pk.len(),
                 keypair_comparison_data.test_data[i].sk,
-                keypair_comparison_data.test_data[i].seed);
+                keypair_comparison_data.test_data[i].sk.len(),
+                keypair_comparison_data.test_data[i].seed,
+                keypair_comparison_data.test_data[i].seed.len()
+            );
             crypto_test::owcpa::owcpa_keypair(&mut keypair_test_data.test_data[i].pk, &mut keypair_test_data.test_data[i].sk, keypair_test_data.test_data[i].seed);
             assert_eq!(keypair_test_data.test_data[i].seed, keypair_comparison_data.test_data[i].seed, "\nSeed differs in test {}", keypair_test_data.test_data[i].count);
             assert_eq!(keypair_test_data.test_data[i].pk, keypair_comparison_data.test_data[i].pk, "\nPK differs in test {}", keypair_test_data.test_data[i].count);
