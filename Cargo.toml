@@ -15,6 +15,7 @@ ntruhps4096821 = ['ntruhps']
 ntruhrss701 = ['ntruhrss']
 ntruhps = []
 ntruhrss = []
+bench = []
 
 [dependencies]
 wasm-bindgen = "0.2.76"
@@ -42,4 +43,10 @@ wasm-bindgen-test = "0.3.26"
 
 [profile.release]
 # Tell `rustc` to optimize for small code size.
-opt-level = "s"
+#opt-level = "s"
+opt-level = 3
+lto = true
+# swap opt-level and uncomment below lines to optimize for speed
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ["-O4", "--enable-mutable-globals"]

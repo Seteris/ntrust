@@ -1,5 +1,6 @@
-use aes::{Aes256, BlockEncrypt, NewBlockCipher};
-use aes::cipher::Block;
+use aes::{Aes256, BlockEncrypt};
+use aes::cipher::{Block, CipherKey, Nonce};
+use aes::cipher::generic_array::GenericArray;
 use ctr::cipher::{NewCipher, StreamCipher, StreamCipherSeek};
 
 const RNG_SUCCESS: i32 = 0;
@@ -39,11 +40,10 @@ fn aes256_ecb(
     ctr: &mut [u8; 16],
     mut buffer: &mut [u8; 16]
 ) {
-    // TODO: CTR MODE, Generic Array
-    // TODO: IV is NULL
-    // type Aes128Ctr = ctr::Ctr128BE<aes::Aes128>;
-    // let mut cipher = Aes128Ctr::new(key.into(), [].into());
-    // cipher.apply_keystream(&mut buffer);
+    type Aes128Ctr = ctr::Ctr128BE<aes::Aes128>;
+    let mut cipher = Aes128Ctr::new(key[..].into(), ([] as [u8; 0])[..].into());
+    buffer.copy_from_slice(&ctr[..]);
+    cipher.apply_keystream(&mut buffer[..]);
 }
 
 

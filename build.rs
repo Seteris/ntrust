@@ -1,6 +1,13 @@
 use std::collections::HashMap;
+use std::env;
 
 fn main() {
+    match env::var_os("ntrust_bench") {
+        Some(_val) => {
+            println!("cargo:rustc-cfg=feature=\"bench\"");
+        },
+        None => {},
+    };
     let mut features = HashMap::new();
     features.insert("ntruhps2048509", cfg!(feature = "ntruhps2048509"));
     features.insert("ntruhps2048677", cfg!(feature = "ntruhps2048677"));

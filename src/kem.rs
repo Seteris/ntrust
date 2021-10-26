@@ -9,6 +9,12 @@ use crate::poly::{Poly, poly_z3_to_zq};
 use crate::rng::{Aes256CtrDrbgStruct, randombytes};
 use crate::sample::sample_rm;
 
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( $t )* ).into());
+    }
+}
+
 pub fn crypto_kem_keypair(mut pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
                           mut sk: &mut [u8; CRYPTO_SECRETKEYBYTES],
                           mut aes256ctrdrbg: &mut Aes256CtrDrbgStruct) {
