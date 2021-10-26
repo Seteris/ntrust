@@ -11,7 +11,6 @@ use crypto_test::owcpa;
 use crypto_test::params;
 use crypto_test::params::NTRU_SAMPLE_FG_BYTES;
 use provider::{TEST_DATA_CHUNK_COUNT, TEST_DATA_CHUNK_SIZE};
-use test::Bencher;
 
 wasm_bindgen_test_configure!(run_in_browser);
 
