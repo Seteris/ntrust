@@ -2,42 +2,36 @@ use crate::params::{NTRU_N, NTRU_PACK_DEG};
 use crate::poly::MODQ;
 use crate::poly::Poly;
 
-macro_rules! log {
-    ( $( $t:tt )* ) => {
-        web_sys::console::log_1(&format!( $( $t )* ).into());
-    }
-}
 
 #[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677"))]
+#[allow(arithmetic_overflow)]
 pub fn poly_sq_tobytes(r: &mut [u8],
                        a: &mut Poly) {
-    log!("starting poly_sq_tobytes with len r = {}", r.len());
     let mut t: [u16; 8] = [0; 8];
     let i: i16;
-
     for i in 0..NTRU_PACK_DEG / 8 {
         for j in 0..8 {
             t[j] = MODQ(a.coeffs[8 * i + j]);
         }
-        r[11 * i + 0] = (t[0] & 0xff) as u8;
-        r[11 * i + 1] = ((t[0] >> 8) | ((t[1] & 0x1f) << 3)) as u8;
-        r[11 * i + 2] = ((t[1] >> 5) | ((t[2] & 0x03) << 6)) as u8;
-        r[11 * i + 3] = ((t[2] >> 2) & 0xff) as u8;
-        r[11 * i + 4] = ((t[2] >> 10) | ((t[3] & 0x7f) << 1)) as u8;
-        r[11 * i + 5] = ((t[3] >> 7) | ((t[4] & 0x0f) << 4)) as u8;
-        r[11 * i + 6] = ((t[4] >> 4) | ((t[5] & 0x01) << 7)) as u8;
-        r[11 * i + 7] = ((t[5] >> 1) & 0xff) as u8;
-        r[11 * i + 8] = ((t[5] >> 9) | ((t[6] & 0x3f) << 2)) as u8;
-        r[11 * i + 9] = ((t[6] >> 6) | ((t[7] & 0x07) << 5)) as u8;
-        r[11 * i + 10] = (t[7] >> 3) as u8;
+        r[11 * i + 0] = ((t[0] as u8) & 0xff);
+        r[11 * i + 2] = (((t[1]).wrapping_shr(5)) | ((t[2] & 0x03).wrapping_shl(6))) as u8;
+        r[11 * i + 1] = (((t[0]).wrapping_shr(8)) | ((t[1] & 0x1f).wrapping_shl(3))) as u8;
+        r[11 * i + 3] = (((t[2]).wrapping_shr(2)) & 0xff) as u8;
+        r[11 * i + 4] = (((t[2]).wrapping_shr(10)) | ((t[3] & 0x7f).wrapping_shl(1))) as u8;
+        r[11 * i + 5] = (((t[3]).wrapping_shr(7)) | ((t[4] & 0x0f).wrapping_shl(4))) as u8;
+        r[11 * i + 6] = (((t[4]).wrapping_shr(4)) | ((t[5] & 0x01).wrapping_shl(7))) as u8;
+        r[11 * i + 7] = (((t[5]).wrapping_shr(1)) & 0xff) as u8;
+        r[11 * i + 8] = (((t[5]).wrapping_shr(9)) | ((t[6] & 0x3f).wrapping_shl(2))) as u8;
+        r[11 * i + 9] = (((t[6]).wrapping_shr(6)) | ((t[7] & 0x07).wrapping_shl(5))) as u8;
+        r[11 * i + 10] = (t[7]).wrapping_shr(3) as u8;
     }
 
     i = (NTRU_PACK_DEG as i16 / 8);
     for j in 0..(NTRU_PACK_DEG as i16 - 8 * i) {
         t[j as usize] = MODQ(a.coeffs[(8 * i + j) as usize]);
     }
-    let j = (NTRU_PACK_DEG as i16 - 8 * i) - 1;
-    for x in j + 1..8 {
+    let j = (NTRU_PACK_DEG as i16 - 8 * i);
+    for x in j..8 {
         t[x as usize] = 0;
     }
 
@@ -59,7 +53,6 @@ pub fn poly_sq_tobytes(r: &mut [u8],
         }
         _ => {}
     }
-    log!("finished poly_sq_tobytes");
 }
 
 #[cfg(feature = "ntruhps4096821")]

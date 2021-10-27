@@ -4,15 +4,8 @@ use crate::params::{NTRU_N, NTRU_SAMPLE_FG_BYTES, NTRU_SAMPLE_FT_BYTES, NTRU_SAM
 use crate::poly::Poly;
 use crate::sample_iid::sample_iid;
 
-macro_rules! log {
-    ( $( $t:tt )* ) => {
-        web_sys::console::log_1(&format!( $( $t )* ).into());
-    }
-}
-
 pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_BYTES]) {
     #[cfg(feature = "ntruhrss701")] {
-        log!("NTRUHRSS sample_fg");
         // FIXME: Check for size error
         let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0u8; NTRU_SAMPLE_IID_BYTES];
         bytes.copy_from_slice(&uniformbytes[..NTRU_N]);
@@ -21,7 +14,6 @@ pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_B
         sample_iid_plus(f, bytes);
     }
     #[cfg(feature = "ntruhps")] {
-        log!("NTRUHPS sample_fg");
         let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0u8; NTRU_SAMPLE_IID_BYTES];
         bytes.copy_from_slice(&uniformbytes[..NTRU_N - 1]);
         sample_iid(f, bytes);
