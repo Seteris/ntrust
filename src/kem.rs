@@ -13,15 +13,19 @@ pub fn crypto_kem_keypair(mut pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
                           mut sk: &mut [u8; CRYPTO_SECRETKEYBYTES],
                           mut aes256ctrdrbg: &mut Aes256CtrDrbgStruct) {
     let mut seed: [u8; NTRU_SAMPLE_FG_BYTES] = [0; NTRU_SAMPLE_FG_BYTES];
-
     randombytes(&mut seed, &mut (NTRU_SAMPLE_FG_BYTES as u64), aes256ctrdrbg);
-
     owcpa_keypair(&mut pk, &mut sk, seed);
 
     let mut sk_copy: [u8; NTRU_PRFKEYBYTES] = [0; NTRU_PRFKEYBYTES];
     sk_copy.copy_from_slice(&sk[NTRU_OWCPA_SECRETKEYBYTES..]);
     randombytes(&mut sk_copy, &mut (NTRU_PRFKEYBYTES as u64), aes256ctrdrbg);
     sk[NTRU_OWCPA_SECRETKEYBYTES..].copy_from_slice(&sk_copy);
+}
+
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( $t )* ).into());
+    }
 }
 
 pub fn crypto_kem_enc(
@@ -42,7 +46,7 @@ pub fn crypto_kem_enc(
 
     poly_s3_tobytes(rm, r);
     let trinary_bytes: &mut [u8; NTRU_OWCPA_MSGBYTES] = &mut [0; NTRU_OWCPA_MSGBYTES];
-    trinary_bytes.copy_from_slice(&rm[NTRU_PACK_TRINARY_BYTES..]);
+    trinary_bytes[..NTRU_OWCPA_MSGBYTES - NTRU_PACK_TRINARY_BYTES].copy_from_slice(&rm[NTRU_PACK_TRINARY_BYTES..]);
     poly_s3_tobytes(trinary_bytes, m);
     sha3_256(k, rm);
 

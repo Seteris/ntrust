@@ -40,17 +40,18 @@ fn aes256_ecb(
     ctr: &mut [u8; 16],
     mut buffer: &mut [u8; 16]
 ) {
-    type Aes128Ctr = ctr::Ctr128BE<aes::Aes128>;
-    let mut cipher = Aes128Ctr::new(key[..].into(), ([] as [u8; 0])[..].into());
+    type Aes256Ctr = ctr::Ctr128BE<aes::Aes256>;
+    let mut new_key = [0u8; 32];
+    new_key.copy_from_slice(key);
+    let new_nonce = &[0; 16];
+    let mut cipher = Aes256Ctr::new(&new_key.into(), new_nonce.into());
     buffer.copy_from_slice(&ctr[..]);
     cipher.apply_keystream(&mut buffer[..]);
 }
 
-
 pub fn randombytes(x: &mut [u8], xlen: &mut u64, drbg_ctx: &mut Aes256CtrDrbgStruct) -> i32 {
     let mut block: [u8; 16] = [0; 16];
     let mut i = 0;
-
     while *xlen > 0 {
         let mut j: isize = 15;
         while j >= 0 {
@@ -63,14 +64,14 @@ pub fn randombytes(x: &mut [u8], xlen: &mut u64, drbg_ctx: &mut Aes256CtrDrbgStr
             j -= 1;
         }
         aes256_ecb(&mut drbg_ctx.key, &mut drbg_ctx.v, &mut block);
-    }
-    if *xlen > 15 {
-        x[i..].copy_from_slice(&block[..16]);
-        i += 16;
-        *xlen -= 16;
-    } else {
-        x[*xlen as usize..].copy_from_slice(&block[..*xlen as usize]);
-        *xlen = 0;
+        if *xlen > 15 {
+            x[i..i + 16].copy_from_slice(&block[..16]);
+            i += 16;
+            *xlen -= 16;
+        } else {
+            x[*xlen as usize..(*xlen + *xlen) as usize].copy_from_slice(&block[..*xlen as usize]);
+            *xlen = 0;
+        }
     }
     let provided_data: &mut Option<[u8; 48]> = &mut None;
     aes256_ctr_drbg_update(provided_data, &mut drbg_ctx.key, &mut drbg_ctx.v);
@@ -107,5 +108,5 @@ fn aes256_ctr_drbg_update(
         }
     }
     key[..32].copy_from_slice(&temp[..32]);
-    v[32..].copy_from_slice(&temp[32..]);
+    v[..16].copy_from_slice(&temp[32..]);
 }

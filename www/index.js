@@ -85,7 +85,7 @@ document.addEventListener('click', function (event) {
             runTests();
             break;
         case 'run-bench':
-            let runTimes = runBench(1);
+            let runTimes = runBench(1000);
             displayAverageTime(runTimes);
             break;
     }

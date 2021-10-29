@@ -61,6 +61,12 @@ pub fn owcpa_check_m(m: &Poly) -> u32 {
     1 & ((!t + 1) >> 31)
 }
 
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( $t )* ).into());
+    }
+}
+
 pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
                      sk: &mut [u8; CRYPTO_SECRETKEYBYTES],
                      seed: [u8; NTRU_SAMPLE_FG_BYTES]) {
@@ -75,11 +81,8 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
     // let gf: &mut Poly = &mut x3;
     // let invh: &mut Poly = &mut x3;
     // let h: &mut Poly = &mut x3;
-
     sample_fg(f, g, seed);
-
     poly_s3_inv(&mut x3, f);
-
     let mut sk_bytes: [u8; NTRU_OWCPA_MSGBYTES] = [0u8; NTRU_OWCPA_MSGBYTES];
     sk_bytes.copy_from_slice(&sk[..NTRU_OWCPA_MSGBYTES]);
     poly_s3_tobytes(&mut sk_bytes, f);
@@ -112,7 +115,6 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
         }
     }
     poly_rq_mul(&mut x3, g, f);
-
     poly_rq_inv(invgf, &x3);
     poly_rq_mul(tmp, invgf, f);
     poly_sq_mul(&mut x3, tmp, f);
@@ -174,9 +176,9 @@ pub fn owcpa_dec(rm: &mut [u8], ciphertext: &[u8], secretkey: &[u8; CRYPTO_SECRE
     poly_s3_frombytes(x3, sk_trinary_bytes);
     poly_s3_mul(x4, x2, x3);
     let mut ntru_pack_trinary_bytes: [u8; NTRU_OWCPA_MSGBYTES] = [0; NTRU_OWCPA_MSGBYTES];
-    ntru_pack_trinary_bytes.copy_from_slice(&rm[NTRU_PACK_TRINARY_BYTES..NTRU_PACK_TRINARY_BYTES + NTRU_OWCPA_MSGBYTES]);
+    ntru_pack_trinary_bytes[..NTRU_OWCPA_MSGBYTES - NTRU_PACK_TRINARY_BYTES].copy_from_slice(&rm[NTRU_PACK_TRINARY_BYTES..]);
     poly_s3_tobytes(&mut ntru_pack_trinary_bytes, x4);
-    rm[NTRU_PACK_TRINARY_BYTES..NTRU_PACK_TRINARY_BYTES + NTRU_OWCPA_MSGBYTES].copy_from_slice(&ntru_pack_trinary_bytes);
+    rm[NTRU_PACK_TRINARY_BYTES..].copy_from_slice(&ntru_pack_trinary_bytes[..NTRU_OWCPA_MSGBYTES - NTRU_PACK_TRINARY_BYTES]);
 
     /* Check that the unused bits of the last byte of the ciphertext are zero */
     let mut fail = 0 | owcpa_check_ciphertext(ciphertext);

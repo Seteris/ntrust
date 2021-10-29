@@ -13,10 +13,12 @@ export function runBench(benchRuns) {
 
     let runTimes = [];
     for (let i = 0; i < benchRuns; i++) {
+        console.log("Benchmark run " + i);
         let startTime = performance.now();
         wasm.ntru_bench();
         let endTime = performance.now();
         runTimes.push(endTime - startTime);
+        console.log("Benchmark run " + i + " finished");
     }
     return runTimes;
 }
