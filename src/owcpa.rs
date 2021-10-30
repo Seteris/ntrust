@@ -61,12 +61,6 @@ pub fn owcpa_check_m(m: &Poly) -> u32 {
     1 & ((!t + 1) >> 31)
 }
 
-macro_rules! log {
-    ( $( $t:tt )* ) => {
-        web_sys::console::log_1(&format!( $( $t )* ).into());
-    }
-}
-
 pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
                      sk: &mut [u8; CRYPTO_SECRETKEYBYTES],
                      seed: [u8; NTRU_SAMPLE_FG_BYTES]) {

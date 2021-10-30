@@ -22,12 +22,6 @@ pub fn crypto_kem_keypair(mut pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
     sk[NTRU_OWCPA_SECRETKEYBYTES..].copy_from_slice(&sk_copy);
 }
 
-macro_rules! log {
-    ( $( $t:tt )* ) => {
-        web_sys::console::log_1(&format!( $( $t )* ).into());
-    }
-}
-
 pub fn crypto_kem_enc(
     c: &mut [u8; CRYPTO_CIPHERTEXTBYTES],
     k: &mut [u8; CRYPTO_BYTES],
@@ -54,12 +48,10 @@ pub fn crypto_kem_enc(
     owcpa_enc(c, r, m, pk);
 }
 
-pub fn sha3_256(output: &mut [u8; 32], input: &[u8]) -> [u8; 32] {
+pub fn sha3_256(output: &mut [u8; 32], input: &[u8]) {
     let mut sha3 = Sha3::v256();
-    let mut sha_3_256_out = [0u8; 32];
     sha3.update(input);
     sha3.finalize(output);
-    sha_3_256_out
 }
 
 pub fn crypto_kem_dec(

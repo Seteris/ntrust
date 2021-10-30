@@ -10,12 +10,20 @@ function hexHashDisplayBuilder(hash_array) {
     return Array.prototype.map.call(hash_array, x => ('00' + x.toString()).slice(-2)).join('');
 }
 
-function displayAverageTime(times) {
+function displayRunTimeStats(times) {
     let sum = 0;
+    let max = null;
+    let min = null;
     for (let i = 0; i < times.length; i++) {
+        if (times[i] > max || max === null) {
+            max = times[i];
+        }
+        if (times[i] < min || min === null) {
+            min = times[i];
+        }
         sum += times[i];
     }
-    console.log("Total time of " + times.length + " runs is " + sum + "ms. Average per run: " + (sum / times.length) + "ms.");
+    console.log("Total time of " + times.length + " runs is " + sum + "ms. Average per run: " + (sum / times.length) + "ms. Max: " + max + "ms Min: " + min + "ms.");
 }
 
 document.addEventListener('click', function (event) {
@@ -86,7 +94,7 @@ document.addEventListener('click', function (event) {
             break;
         case 'run-bench':
             let runTimes = runBench(1000);
-            displayAverageTime(runTimes);
+            displayRunTimeStats(runTimes);
             break;
     }
 }, false);

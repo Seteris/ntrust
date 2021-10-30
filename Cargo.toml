@@ -21,7 +21,7 @@ bench = []
 wasm-bindgen = "0.2.76"
 getrandom = { version = "0.2", features = ["js"] }
 web-sys = { version = "0.3.49", features = [ "console" ] }
-tiny-keccak = { version = "2.0.2", features = ["sha3", "shake"] }
+tiny-keccak = { version = "2.0.2", features = ["sha3"] }
 aes = "0.7.5"
 ctr = "0.8.0"
 
@@ -43,10 +43,18 @@ wasm-bindgen-test = "0.3.26"
 
 [profile.release]
 # Tell `rustc` to optimize for small code size.
-#opt-level = "s"
-opt-level = 3
-lto = true
+opt-level = "s"
 # swap opt-level and uncomment below lines to optimize for speed
+#opt-level = 3
+#lto = true
 
-[package.metadata.wasm-pack.profile.release]
-wasm-opt = ["-O4", "--enable-mutable-globals"]
+[profile.dev]
+opt-level = "s"
+#opt-level = 3
+#lto = true
+
+#[package.metadata.wasm-pack.profile.release]
+#wasm-opt = ["-O4"]
+
+#[package.metadata.wasm-pack.profile.dev]
+#wasm-opt = ["-O4"]

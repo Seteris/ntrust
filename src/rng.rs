@@ -1,7 +1,4 @@
-use aes::{Aes256, BlockEncrypt};
-use aes::cipher::{Block, CipherKey, Nonce};
-use aes::cipher::generic_array::GenericArray;
-use ctr::cipher::{NewCipher, StreamCipher, StreamCipherSeek};
+use ctr::cipher::{NewCipher, StreamCipher};
 
 const RNG_SUCCESS: i32 = 0;
 const RNG_BAD_MAXLEN: i32 = -1;
@@ -38,7 +35,7 @@ impl Aes256CtrDrbgStruct {
 fn aes256_ecb(
     key: &mut [u8; 32],
     ctr: &mut [u8; 16],
-    mut buffer: &mut [u8; 16]
+    buffer: &mut [u8; 16]
 ) {
     type Aes256Ctr = ctr::Ctr128BE<aes::Aes256>;
     let mut new_key = [0u8; 32];

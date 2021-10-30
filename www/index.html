@@ -17,59 +17,16 @@
             <div class="col">
                 <label for="encryption-input">Input to Encrypt<br></label>
                 <textarea class="textarea" id="encryption-input"></textarea><br>
-                <button id="encryption-start">Encrypt</button><br><br>
+                <button id="encryption-start">Encrypt</button>
+                <br><br>
                 <label for="encryption-result">Result:</label><br>
                 <textarea class="textarea" id="encryption-result" disabled></textarea>
                 <hr class="section-split">
                 <button id="run-tests">Run Tests</button>
                 <button id="run-bench">Run Benchmark</button>
             </div>
-            <hr class="section-split">
-            <div class="col">
-                <span>
-                <button id="toggle-test-functions">Toggle Test Function Display</button>
-                </span><br>
-            </div>
-        </div>
-
-        <div class="row test-functions" id="test-functions">
-            <div class="col">
-                <label for="hash-input">Input to Hash:<br></label>
-                <textarea class="textarea" id="hash-input"></textarea><br>
-                <button id="hash-start">Hash</button><br><br>
-                <input type="radio" id="sha3-256" name="hash_algorithm" value="0" checked="checked">
-                <label for="sha3-256">SHA3-256</label><br>
-                <input type="radio" id="sha3-512" name="hash_algorithm" value="1">
-                <label for="sha3-512">SHA3-512</label><br>
-                <input type="radio" id="shake-128" name="hash_algorithm" value="2">
-                <label for="shake-128">SHAKE-128</label><br>
-                <input type="radio" id="shake-256" name="hash_algorithm" value="3">
-                <label for="shake-256">SHAKE-256</label><br>
-            </div>
-            <div class="col">
-                <label for="hash-reference">Result:</label><br>
-                <textarea class="textarea" id="hash-reference" disabled></textarea>
-            </div>
-            <div class="col">
-                <span>
-                <input type="checkbox" id="activate-comparison">
-                <label for="activate-comparison">Enable Comparison</label>
-                </span><br>
-                <label for="hash-comparison"></label><br>
-                <textarea class="textarea comparison-box" id="hash-comparison"></textarea>
-            </div>
-            <hr class="section-split">
-            <div class="col">
-                <label>
-                    Number of random bytes (default 128):
-                    <input type="number" id="num-bytes"/><br>
-                </label><br>
-                <button id="random-bytes">Give me some random bytes</button>
-            </div>
         </div>
     </div>
-
-
 </div>
 </body>
 </html>

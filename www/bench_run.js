@@ -1,4 +1,5 @@
 import * as wasm from "crypto_test";
+import {provideData} from "./test_data";
 
 export function runBench(benchRuns) {
     if (!Number.isInteger(benchRuns)) {
@@ -12,9 +13,11 @@ export function runBench(benchRuns) {
     let ss   = [23, 111, 219, 176, 9, 221, 63, 132, 139, 54, 90, 183, 241, 141, 156, 12, 145, 114, 25, 49, 200, 89, 76, 44, 111, 4, 60, 134, 0, 121, 26, 108];
 
     let runTimes = [];
-    for (let i = 0; i < benchRuns; i++) {
+    let chunk = provideData(1);
+    for (let i = 0; i < 1; i++) {
         console.log("Benchmark run " + i);
         let startTime = performance.now();
+        // wasm.ntru_bench_with_parameters(chunk[0][2], chunk[0][3]);
         wasm.ntru_bench();
         let endTime = performance.now();
         runTimes.push(endTime - startTime);

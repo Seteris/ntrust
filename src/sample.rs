@@ -6,7 +6,6 @@ use crate::sample_iid::sample_iid;
 
 pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_BYTES]) {
     #[cfg(feature = "ntruhrss701")] {
-        // FIXME: Check for size error
         let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0u8; NTRU_SAMPLE_IID_BYTES];
         bytes.copy_from_slice(&uniformbytes[..NTRU_N]);
         sample_iid_plus(f, bytes);
