@@ -1,11 +1,10 @@
 use crate::params::NTRU_N;
 use crate::poly::Poly;
 
-/* a between 0 and 9 */
 fn mod3(a: &mut u16) -> u16 {
     let t: i16;
     let c: i16;
-    *a = (*a >> 2) + *a & 3;/* between 0 and 4 */
+    *a = ((*a >> 2) + *a) & 3;
     t = *a as i16 - 3;
     c = t >> 5;
     (t ^ (c & (*a as i16 ^ t))) as u16

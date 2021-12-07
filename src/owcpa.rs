@@ -85,7 +85,7 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
 
     let mut sk_msgbytes: [u8; NTRU_OWCPA_MSGBYTES] = [0u8; NTRU_OWCPA_MSGBYTES];
     sk_msgbytes.copy_from_slice(&sk[NTRU_PACK_TRINARY_BYTES..NTRU_OWCPA_MSGBYTES + NTRU_PACK_TRINARY_BYTES]);
-    poly_s3_tobytes(&mut sk_msgbytes, &mut x3);
+    poly_s3_tobytes(&mut sk_msgbytes, &x3);
     sk[NTRU_PACK_TRINARY_BYTES..NTRU_OWCPA_MSGBYTES + NTRU_PACK_TRINARY_BYTES].copy_from_slice(&sk_msgbytes);
 
     /* Lift coeffs of f and g from Z_p to Z_q */
@@ -105,7 +105,7 @@ pub fn owcpa_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
     #[cfg(feature = "ntruhps")] {
         /* g = 3*g */
         for i in 0..NTRU_N {
-            g.coeffs[i] = 3 * g.coeffs[i];
+            g.coeffs[i] *= 3;
         }
     }
     poly_rq_mul(&mut x3, g, f);
@@ -140,7 +140,7 @@ pub fn owcpa_enc(c: &mut [u8; CRYPTO_CIPHERTEXTBYTES],
 
     poly_lift(x1, m);
     for i in 0..NTRU_N {
-        x2.coeffs[i] = x2.coeffs[i] + x1.coeffs[i];
+        x2.coeffs[i] += x1.coeffs[i];
     }
     poly_rq_sum_zero_tobytes(c, x2);
 }
@@ -175,7 +175,7 @@ pub fn owcpa_dec(rm: &mut [u8], ciphertext: &[u8], secretkey: &[u8; CRYPTO_SECRE
     rm[NTRU_PACK_TRINARY_BYTES..].copy_from_slice(&ntru_pack_trinary_bytes[..NTRU_OWCPA_MSGBYTES - NTRU_PACK_TRINARY_BYTES]);
 
     /* Check that the unused bits of the last byte of the ciphertext are zero */
-    let mut fail = 0 | owcpa_check_ciphertext(ciphertext);
+    let mut fail = owcpa_check_ciphertext(ciphertext);
 
     /* For the IND-CCA2 KEM we must ensure that c = Enc(h, (r,m)).             */
     /* We can avoid re-computing r*h + Lift(m) as long as we check that        */
@@ -188,7 +188,7 @@ pub fn owcpa_dec(rm: &mut [u8], ciphertext: &[u8], secretkey: &[u8; CRYPTO_SECRE
     /* b = c - Lift(m) mod (q, x^n - 1) */
     poly_lift(x2, x4);
     for i in 0..NTRU_N {
-        x1.coeffs[i] = x1.coeffs[i] - x2.coeffs[i];
+        x1.coeffs[i] -= x2.coeffs[i];
     }
 
     /* r = b / h mod (q, Phi_n) */

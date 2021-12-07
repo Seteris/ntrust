@@ -1,17 +1,6 @@
 use ctr::cipher::{NewCipher, StreamCipher};
 
 const RNG_SUCCESS: i32 = 0;
-const RNG_BAD_MAXLEN: i32 = -1;
-const RNG_BAD_OUTBUF: i32 = -2;
-const RNG_BAD_REQ_LEN: i32 = -3;
-
-pub struct AesXofStruct {
-    pub buffer: [u8; 16],
-    pub buffer_pos: i32,
-    pub length_remaining: u32,
-    pub key: [u8; 32],
-    pub ctr: [u8; 16],
-}
 
 pub struct Aes256CtrDrbgStruct {
     pub key: [u8; 32],
@@ -85,23 +74,21 @@ fn aes256_ctr_drbg_update(
     let mut buffer: [u8; 16] = [0; 16];
 
     for i in 0..3 {
-        let mut j = 15;
-        while j >= 0 {
+        for j in (0..16).rev() {
             if v[j] == 0xff {
                 v[j] = 0x00;
             } else {
                 v[j] += 1;
                 break;
             }
-            j -= 1;
         }
         buffer.copy_from_slice(&temp[16 * i..16 * i + 16]);
     }
 
     aes256_ecb(key, v, &mut buffer);
     if provided_data.is_some() {
-        for i in 0..48 {
-            temp[i] ^= (provided_data.unwrap())[i];
+        for (i, val) in temp.iter_mut().enumerate() {
+            *val ^= provided_data.unwrap()[i];
         }
     }
     key[..32].copy_from_slice(&temp[..32]);

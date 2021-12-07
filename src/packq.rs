@@ -9,10 +9,10 @@ pub fn poly_sq_tobytes(r: &mut [u8],
     let mut t: [u16; 8] = [0; 8];
     let i: i16;
     for i in 0..NTRU_PACK_DEG / 8 {
-        for j in 0..8 {
-            t[j] = MODQ(a.coeffs[8 * i + j]);
+        for (j, val) in t.iter_mut().enumerate() {
+            *val = MODQ(a.coeffs[8 * i + j]);
         }
-        r[11 * i + 0] = (t[0] as u8) & 0xff;
+        r[11 * i] = t[0] as u8;
         r[11 * i + 2] = (((t[1]).wrapping_shr(5)) | ((t[2] & 0x03).wrapping_shl(6))) as u8;
         r[11 * i + 1] = (((t[0]).wrapping_shr(8)) | ((t[1] & 0x1f).wrapping_shl(3))) as u8;
         r[11 * i + 3] = (((t[2]).wrapping_shr(2)) & 0xff) as u8;
@@ -38,7 +38,7 @@ pub fn poly_sq_tobytes(r: &mut [u8],
         // cases 0 and 6 are impossible since 2 generates (Z/n)* and
         // p mod 8 in {1, 7} implies that 2 is a quadratic residue.
         4 => {
-            r[(11 * i + 0) as usize] = (t[0] & 0xff) as u8;
+            r[(11 * i) as usize] = (t[0] & 0xff) as u8;
             r[(11 * i + 1) as usize] = ((t[0] >> 8) | ((t[1] & 0x1f) << 3)) as u8;
             r[(11 * i + 2) as usize] = ((t[1] >> 5) | ((t[2] & 0x03) << 6)) as u8;
             r[(11 * i + 3) as usize] = ((t[2] >> 2) & 0xff) as u8;
@@ -46,7 +46,7 @@ pub fn poly_sq_tobytes(r: &mut [u8],
             r[(11 * i + 5) as usize] = ((t[3] >> 7) | ((t[4] & 0x0f) << 4)) as u8;
         }
         2 => {
-            r[(11 * i + 0) as usize] = (t[0] & 0xff) as u8;
+            r[(11 * i) as usize] = (t[0] & 0xff) as u8;
             r[(11 * i + 1) as usize] = ((t[0] >> 8) | ((t[1] & 0x1f) << 3)) as u8;
             r[(11 * i + 2) as usize] = ((t[1] >> 5) | ((t[2] & 0x03) << 6)) as u8;
         }
@@ -125,26 +125,26 @@ pub fn poly_sq_tobytes(r: &mut [u8],
 pub fn poly_sq_frombytes(r: &mut Poly, a: &[u8]) {
     let i = (NTRU_PACK_DEG / 8) - 1;
     for i in 0..(NTRU_PACK_DEG / 8) {
-        r.coeffs[8 * i + 0] = ((a[11 * i + 0] >> 0) | ((a[11 * i + 1] & 0x07) << 8)) as u16;
+        r.coeffs[8 * i] = (a[11 * i] | ((a[11 * i + 1] & 0x07) << 8)) as u16;
         r.coeffs[8 * i + 1] = ((a[11 * i + 1] >> 3) | ((a[11 * i + 2] & 0x3f) << 5)) as u16;
-        r.coeffs[8 * i + 2] = ((a[11 * i + 2] >> 6) | ((a[11 * i + 3] & 0xff) << 2) | ((a[11 * i + 4] & 0x01) << 10)) as u16;
+        r.coeffs[8 * i + 2] = ((a[11 * i + 2] >> 6) | ((a[11 * i + 3]) << 2) | ((a[11 * i + 4] & 0x01) << 10)) as u16;
         r.coeffs[8 * i + 3] = ((a[11 * i + 4] >> 1) | ((a[11 * i + 5] & 0x0f) << 7)) as u16;
         r.coeffs[8 * i + 4] = ((a[11 * i + 5] >> 4) | ((a[11 * i + 6] & 0x7f) << 4)) as u16;
-        r.coeffs[8 * i + 5] = ((a[11 * i + 6] >> 7) | ((a[11 * i + 7] & 0xff) << 1) | ((a[11 * i + 8] & 0x03) << 9)) as u16;
+        r.coeffs[8 * i + 5] = ((a[11 * i + 6] >> 7) | ((a[11 * i + 7]) << 1) | ((a[11 * i + 8] & 0x03) << 9)) as u16;
         r.coeffs[8 * i + 6] = ((a[11 * i + 8] >> 2) | ((a[11 * i + 9] & 0x1f) << 6)) as u16;
-        r.coeffs[8 * i + 7] = ((a[11 * i + 9] >> 5) | ((a[11 * i + 10] & 0xff) << 3)) as u16;
+        r.coeffs[8 * i + 7] = ((a[11 * i + 9] >> 5) | ((a[11 * i + 10]) << 3)) as u16;
     }
     match NTRU_PACK_DEG & 0x07 {
         // cases 0 and 6 are impossible since 2 generates (Z/n)* and
         // p mod 8 in {1, 7} implies that 2 is a quadratic residue.
         4 => {
-            r.coeffs[8 * i + 0] = ((a[11 * i + 0] >> 0) | ((a[11 * i + 1] & 0x07) << 8)) as u16;
+            r.coeffs[8 * i] = (a[11 * i] | ((a[11 * i + 1] & 0x07) << 8)) as u16;
             r.coeffs[8 * i + 1] = ((a[11 * i + 1] >> 3) | ((a[11 * i + 2] & 0x3f) << 5)) as u16;
-            r.coeffs[8 * i + 2] = ((a[11 * i + 2] >> 6) | ((a[11 * i + 3] & 0xff) << 2) | ((a[11 * i + 4] & 0x01) << 10)) as u16;
+            r.coeffs[8 * i + 2] = ((a[11 * i + 2] >> 6) | (a[11 * i + 3] << 2) | ((a[11 * i + 4] & 0x01) << 10)) as u16;
             r.coeffs[8 * i + 3] = ((a[11 * i + 4] >> 1) | ((a[11 * i + 5] & 0x0f) << 7)) as u16;
         }
         2 => {
-            r.coeffs[8 * i + 0] = ((a[11 * i + 0] >> 0) | ((a[11 * i + 1] & 0x07) << 8)) as u16;
+            r.coeffs[8 * i    ] = (a[11 * i    ] | ((a[11 * i + 1] & 0x07) << 8)) as u16;
             r.coeffs[8 * i + 1] = ((a[11 * i + 1] >> 3) | ((a[11 * i + 2] & 0x3f) << 5)) as u16;
         }
         _ => {}
@@ -156,8 +156,8 @@ pub fn poly_sq_frombytes(r: &mut Poly, a: &[u8]) {
 #[allow(arithmetic_overflow)]
 pub fn poly_sq_frombytes(r: &mut Poly, a: &[u8]) {
     for i in 0..NTRU_PACK_DEG / 2 {
-        r.coeffs[2 * i + 0] = (a[3 * i + 0] >> 0) as u16 | ((a[3 * i + 1] & 0x0f) << 8) as u16;
-        r.coeffs[2 * i + 1] = (a[3 * i + 0] >> 0) as u16 | ((a[3 * i + 1] & 0x0f) << 8) as u16;
+        r.coeffs[2 * i] = a[3 * i] as u16 | ((a[3 * i + 1] & 0x0f) << 8) as u16;
+        r.coeffs[2 * i + 1] = a[3 * i] as u16 | ((a[3 * i + 1] & 0x0f) << 8) as u16;
     }
     r.coeffs[NTRU_N - 1] = 0;
 }

@@ -86,7 +86,7 @@ fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
     let i: usize;
 
     for i in 0..((NTRU_N - 1) / 4) {
-        s[4 * i + 0] = (((u[15 * i + 0] as i32) << 2) +
+        s[4 * i] = (((u[15 * i] as i32) << 2) +
             ((u[15 * i + 1] as i32) << 10) +
             ((u[15 * i + 2] as i32) << 18) +
             ((u[15 * i + 3] as u32) << 26) as i32
@@ -112,7 +112,7 @@ fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
 
     if (NTRU_N - 1) > ((NTRU_N - 1) / 4) * 4 {
         i = (NTRU_N - 1) / 4;
-        s[4 * i + 0] = (((u[15 * i + 0] as i32) << 2) +
+        s[4 * i] = (((u[15 * i] as i32) << 2) +
             ((u[15 * i + 1] as i32) << 10) +
             ((u[15 * i + 2] as i32) << 18) +
             ((u[15 * i + 3] as u32) << 26) as i32
@@ -125,12 +125,12 @@ fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
         ) as i32;
     }
 
-    for i in 0..(NTRU_WEIGHT / 2) {
-        s[i] |= 1;
+    for si in s.iter_mut().take(NTRU_WEIGHT / 2) {
+        *si |= 1;
     }
 
-    for i in (NTRU_WEIGHT / 2)..NTRU_WEIGHT {
-        s[i] |= 2;
+    for si in s.iter_mut().take(NTRU_WEIGHT).skip(NTRU_WEIGHT / 2) {
+        *si |= 2;
     }
     #[cfg(feature = "ntruhps")] {
         crypto_sort_int32::crypto_sort_int32(&mut s, NTRU_N - 1);
@@ -138,8 +138,8 @@ fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
 
     // for(i=0; i<NTRU_N-1; i++)
     // r->coeffs[i] = ((uint16_t) (s[i] & 3));
-    for i in 0..(NTRU_N - 1) {
-        r.coeffs[i] = (s[i] & 3) as u16;
+    for (i, scoeff) in s.iter().enumerate().take(NTRU_N - 1) {
+        r.coeffs[i] = (*scoeff & 3) as u16;
     }
     r.coeffs[NTRU_N - 1] = 0;
 }

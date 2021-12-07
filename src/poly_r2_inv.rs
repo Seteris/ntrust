@@ -42,10 +42,10 @@ pub fn poly_r2_inv(r: &mut Poly, a: &Poly) {
             w.coeffs[i] ^= t as u16;
         }
         for i in 0..NTRU_N {
-            g.coeffs[i] = g.coeffs[i] ^ (sign as u16 & f.coeffs[i]);
+            g.coeffs[i] ^= sign as u16 & f.coeffs[i];
         }
         for i in 0..NTRU_N {
-            w.coeffs[i] = w.coeffs[i] ^ (sign as u16 & v.coeffs[i]);
+            w.coeffs[i] ^= sign as u16 & v.coeffs[i];
         }
         for i in 0..NTRU_N - 1 {
             g.coeffs[i] = g.coeffs[i + 1];

@@ -9,12 +9,12 @@ use crate::poly::{Poly, poly_z3_to_zq};
 use crate::rng::{Aes256CtrDrbgStruct, randombytes};
 use crate::sample::sample_rm;
 
-pub fn crypto_kem_keypair(mut pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
-                          mut sk: &mut [u8; CRYPTO_SECRETKEYBYTES],
-                          mut aes256ctrdrbg: &mut Aes256CtrDrbgStruct) {
+pub fn crypto_kem_keypair(pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
+                          sk: &mut [u8; CRYPTO_SECRETKEYBYTES],
+                          aes256ctrdrbg: &mut Aes256CtrDrbgStruct) {
     let mut seed: [u8; NTRU_SAMPLE_FG_BYTES] = [0; NTRU_SAMPLE_FG_BYTES];
     randombytes(&mut seed, &mut (NTRU_SAMPLE_FG_BYTES as u64), aes256ctrdrbg);
-    owcpa_keypair(&mut pk, &mut sk, seed);
+    owcpa_keypair(pk, sk, seed);
 
     let mut sk_copy: [u8; NTRU_PRFKEYBYTES] = [0; NTRU_PRFKEYBYTES];
     sk_copy.copy_from_slice(&sk[NTRU_OWCPA_SECRETKEYBYTES..]);
@@ -68,12 +68,8 @@ pub fn crypto_kem_dec(
     sha3_256(k, rm);
 
     /* shake(secret PRF key || input ciphertext) */
-    for i in 0..NTRU_PRFKEYBYTES {
-        buf[i] = sk[i + NTRU_OWCPA_SECRETKEYBYTES];
-    }
-    for i in 0..NTRU_CIPHERTEXTBYTES {
-        buf[NTRU_PRFKEYBYTES + i] = c[i];
-    }
+    buf[..NTRU_PRFKEYBYTES].clone_from_slice(&sk[NTRU_OWCPA_SECRETKEYBYTES..(NTRU_PRFKEYBYTES + NTRU_OWCPA_SECRETKEYBYTES)]);
+    buf[NTRU_PRFKEYBYTES..(NTRU_CIPHERTEXTBYTES + NTRU_PRFKEYBYTES)].clone_from_slice(&c[..NTRU_CIPHERTEXTBYTES]);
     let mut rm_bytes: [u8; 32] = [0; 32];
     rm_bytes.copy_from_slice(&rm[0..32]);
 

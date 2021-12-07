@@ -4,7 +4,7 @@ use crate::api::{CRYPTO_BYTES, CRYPTO_CIPHERTEXTBYTES, CRYPTO_PUBLICKEYBYTES, CR
 use crate::kem::{crypto_kem_dec, crypto_kem_enc, crypto_kem_keypair};
 use crate::owcpa::owcpa_keypair;
 use crate::params::NTRU_SAMPLE_FG_BYTES;
-use crate::rng::{Aes256CtrDrbgStruct, randombytes};
+use crate::rng::{Aes256CtrDrbgStruct};
 
 mod utils;
 mod sample;
