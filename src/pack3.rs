@@ -13,7 +13,8 @@ pub fn poly_s3_tobytes(msg: &mut [u8; NTRU_OWCPA_MSGBYTES], a: &Poly) {
         *m = c;
     }
 
-    if NTRU_PACK_DEG > (NTRU_PACK_DEG / 5) * 5 { // if 5 does not divide NTRU_N - 1
+    if NTRU_PACK_DEG > (NTRU_PACK_DEG / 5) * 5 {
+        // if 5 does not divide NTRU_N - 1
         let i = NTRU_PACK_DEG / 5;
         c = 0;
         let mut j: isize = NTRU_PACK_DEG as isize - (5 * i) as isize - 1;
@@ -30,10 +31,10 @@ pub fn poly_s3_frombytes(mut r: &mut Poly, msg: [u8; NTRU_OWCPA_MSGBYTES]) {
     let mut c: u8;
     for (i, c) in msg.iter().enumerate().take(NTRU_PACK_DEG / 5) {
         r.coeffs[5 * i] = *c as u16;
-        r.coeffs[5 * i + 1] = ((*c * 171) >> 9) as u16;   // this is division by 3
-        r.coeffs[5 * i + 2] = ((*c * 57) >> 9) as u16;    // division by 3^2
-        r.coeffs[5 * i + 3] = ((*c * 19) >> 9) as u16;    // division by 3^3
-        r.coeffs[5 * i + 4] = ((*c * 203) >> 14) as u16;  // etc.
+        r.coeffs[5 * i + 1] = ((*c * 171) >> 9) as u16; // this is division by 3
+        r.coeffs[5 * i + 2] = ((*c * 57) >> 9) as u16; // division by 3^2
+        r.coeffs[5 * i + 3] = ((*c * 19) >> 9) as u16; // division by 3^3
+        r.coeffs[5 * i + 4] = ((*c * 203) >> 14) as u16; // etc.
     }
     if NTRU_PACK_DEG > (NTRU_PACK_DEG / 5) * 5 {
         let i = NTRU_PACK_DEG / 5;

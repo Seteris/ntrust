@@ -1,5 +1,5 @@
 use crate::params::NTRU_N;
-use crate::poly::{Poly, poly_z3_to_zq};
+use crate::poly::{poly_z3_to_zq, Poly};
 
 #[cfg(feature = "ntruhps")]
 pub fn poly_lift(r: &mut Poly, a: &Poly) {

@@ -20,8 +20,7 @@ fn main() {
         }
     }
 
-    if target_feature.is_empty()
-    {
+    if target_feature.is_empty() {
         println!("cargo:rustc-cfg=feature=\"ntruhps2048509\"");
         println!("cargo:rustc-cfg=feature=\"ntruhps\"");
     }

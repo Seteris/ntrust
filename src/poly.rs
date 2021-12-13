@@ -26,13 +26,12 @@ impl Default for Poly {
     }
 }
 
-pub const MODQ: fn(u16) -> u16 = |x| {
-    x & (NTRU_Q - 1) as u16
-};
+pub const MODQ: fn(u16) -> u16 = |x| x & (NTRU_Q - 1) as u16;
 
 pub fn poly_z3_to_zq(r: &mut Poly) {
     for i in 0..NTRU_N {
-        r.coeffs[i] = (r.coeffs[i] as i16 | -((r.coeffs[i] >> 1) as i16) & (NTRU_Q as u16 - 1) as i16) as u16;
+        r.coeffs[i] =
+            (r.coeffs[i] as i16 | -((r.coeffs[i] >> 1) as i16) & (NTRU_Q as u16 - 1) as i16) as u16;
     }
 }
 

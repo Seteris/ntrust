@@ -1,29 +1,31 @@
 use wasm_bindgen::prelude::*;
 
-use crate::api::{CRYPTO_BYTES, CRYPTO_CIPHERTEXTBYTES, CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES};
+use crate::api::{
+    CRYPTO_BYTES, CRYPTO_CIPHERTEXTBYTES, CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES,
+};
 use crate::kem::{crypto_kem_dec, crypto_kem_enc, crypto_kem_keypair};
 use crate::owcpa::owcpa_keypair;
 use crate::params::NTRU_SAMPLE_FG_BYTES;
-use crate::rng::{Aes256CtrDrbgStruct};
+use crate::rng::Aes256CtrDrbgStruct;
 
-mod utils;
-mod sample;
-pub mod params;
-mod crypto_sort_int32;
-mod poly_s3_inv;
-mod pack3;
-mod poly_mod;
-mod poly;
-mod poly_rq_mul;
-mod poly_r2_inv;
-mod packq;
-mod sample_iid;
 pub mod api;
-pub mod owcpa;
-mod poly_lift;
-mod rng;
-mod kem;
 mod cmov;
+mod crypto_sort_int32;
+mod kem;
+pub mod owcpa;
+mod pack3;
+mod packq;
+pub mod params;
+mod poly;
+mod poly_lift;
+mod poly_mod;
+mod poly_r2_inv;
+mod poly_rq_mul;
+mod poly_s3_inv;
+mod rng;
+mod sample;
+mod sample_iid;
+mod utils;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -55,12 +57,13 @@ pub fn crypto_kem_keypair_test(
     comparison_sk_vec: Vec<u8>,
     comparison_seed_vec: Vec<u8>,
 ) -> i32 {
-    if pk_vec.len() != CRYPTO_PUBLICKEYBYTES ||
-        sk_vec.len() != CRYPTO_SECRETKEYBYTES ||
-        seed_vec.len() != NTRU_SAMPLE_FG_BYTES ||
-        comparison_pk_vec.len() != CRYPTO_PUBLICKEYBYTES ||
-        comparison_sk_vec.len() != CRYPTO_SECRETKEYBYTES ||
-        comparison_seed_vec.len() != NTRU_SAMPLE_FG_BYTES {
+    if pk_vec.len() != CRYPTO_PUBLICKEYBYTES
+        || sk_vec.len() != CRYPTO_SECRETKEYBYTES
+        || seed_vec.len() != NTRU_SAMPLE_FG_BYTES
+        || comparison_pk_vec.len() != CRYPTO_PUBLICKEYBYTES
+        || comparison_sk_vec.len() != CRYPTO_SECRETKEYBYTES
+        || comparison_seed_vec.len() != NTRU_SAMPLE_FG_BYTES
+    {
         return PARAMETER_SIZE_INVALID;
     }
     let pk: &mut [u8; CRYPTO_PUBLICKEYBYTES] = &mut [0; CRYPTO_PUBLICKEYBYTES];

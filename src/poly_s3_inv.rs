@@ -26,7 +26,6 @@ pub fn poly_s3_inv(r: &mut Poly, a: &mut Poly) {
     let mut w: Poly = Poly::new();
     w.coeffs[0] = 1;
 
-
     for i in 0..(NTRU_N - 1) {
         let a_i = a.coeffs[i] & 3;
         let a_ntru_n = a.coeffs[NTRU_N - 1] & 3;

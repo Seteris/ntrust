@@ -13,7 +13,7 @@ impl Aes256CtrDrbgStruct {
         Aes256CtrDrbgStruct {
             key: [0; 32],
             v: [0; 16],
-            reseed_counter: 0
+            reseed_counter: 0,
         }
     }
 }
@@ -21,11 +21,7 @@ impl Aes256CtrDrbgStruct {
 //    key - 256-bit AES key
 //    ctr - a 128-bit plaintext value
 //    buffer - a 128-bit ciphertext value
-fn aes256_ecb(
-    key: &mut [u8; 32],
-    ctr: &mut [u8; 16],
-    buffer: &mut [u8; 16]
-) {
+fn aes256_ecb(key: &mut [u8; 32], ctr: &mut [u8; 16], buffer: &mut [u8; 16]) {
     type Aes256Ctr = ctr::Ctr128BE<aes::Aes256>;
     let mut new_key = [0u8; 32];
     new_key.copy_from_slice(key);
@@ -68,7 +64,7 @@ pub fn randombytes(x: &mut [u8], xlen: &mut u64, drbg_ctx: &mut Aes256CtrDrbgStr
 fn aes256_ctr_drbg_update(
     provided_data: &mut Option<[u8; 48]>,
     key: &mut [u8; 32],
-    v: &mut [u8; 16]
+    v: &mut [u8; 16],
 ) {
     let mut temp: [u8; 48] = [0; 48];
     let mut buffer: [u8; 16] = [0; 16];
