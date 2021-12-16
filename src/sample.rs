@@ -50,6 +50,7 @@ pub fn sample_rm(r: &mut Poly, m: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_RM_B
     }
 }
 
+#[cfg(feature = "ntruhrss701")]
 pub fn sample_iid_plus(r: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_IID_BYTES]) {
     /* Sample r using sample then conditionally flip    */
     /* signs of even index coefficients so that <x*r, r> >= 0.      */
