@@ -32,7 +32,7 @@ pub fn crypto_kem_keypair(
 pub fn crypto_kem_enc(
     c: &mut [u8; CRYPTO_CIPHERTEXTBYTES],
     k: &mut [u8; CRYPTO_BYTES],
-    pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
+    pk: &[u8; CRYPTO_PUBLICKEYBYTES],
     aes256ctrdrbg: &mut Aes256CtrDrbgStruct,
 ) {
     let r: &mut Poly = &mut Poly::new();
@@ -64,8 +64,8 @@ pub fn sha3_256(output: &mut [u8; 32], input: &[u8]) {
 
 pub fn crypto_kem_dec(
     k: &mut [u8; CRYPTO_BYTES],
-    c: &mut [u8; CRYPTO_CIPHERTEXTBYTES],
-    sk: &mut [u8; CRYPTO_SECRETKEYBYTES],
+    c: &[u8; CRYPTO_CIPHERTEXTBYTES],
+    sk: &[u8; CRYPTO_SECRETKEYBYTES],
 ) -> i32 {
     let rm: &mut [u8; NTRU_OWCPA_MSGBYTES] = &mut [0; NTRU_OWCPA_MSGBYTES];
     let mut buf: [u8; NTRU_PRFKEYBYTES + NTRU_CIPHERTEXTBYTES] =

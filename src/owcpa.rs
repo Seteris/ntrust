@@ -141,7 +141,7 @@ pub fn owcpa_enc(
     c: &mut [u8; CRYPTO_CIPHERTEXTBYTES],
     r: &mut Poly,
     m: &mut Poly,
-    pk: &mut [u8; CRYPTO_PUBLICKEYBYTES],
+    pk: &[u8; CRYPTO_PUBLICKEYBYTES],
 ) {
     let x1: &mut Poly = &mut Poly::new();
     let x2: &mut Poly = &mut Poly::new();
