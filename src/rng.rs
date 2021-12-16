@@ -61,6 +61,14 @@ pub fn randombytes(x: &mut [u8], xlen: &mut u64, drbg_ctx: &mut Aes256CtrDrbgStr
     RNG_SUCCESS
 }
 
+pub fn randombytes_init(entropy_input: [u8; 48], drbg_ctx: &mut Aes256CtrDrbgStruct) {
+    drbg_ctx.key = [0u8; 32];
+    drbg_ctx.v = [0u8; 16];
+
+    aes256_ctr_drbg_update(&mut Some(entropy_input), &mut drbg_ctx.key, &mut drbg_ctx.v);
+    drbg_ctx.reseed_counter = 1;
+}
+
 fn aes256_ctr_drbg_update(
     provided_data: &mut Option<[u8; 48]>,
     key: &mut [u8; 32],
