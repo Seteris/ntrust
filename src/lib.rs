@@ -32,35 +32,6 @@ mod cmov;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-pub fn ntru_bench() {
-    let pk: &mut [u8; CRYPTO_PUBLICKEYBYTES] = &mut [0; CRYPTO_PUBLICKEYBYTES];
-    let sk: &mut [u8; CRYPTO_SECRETKEYBYTES] = &mut [0; CRYPTO_SECRETKEYBYTES];
-    let ct: &mut [u8; CRYPTO_CIPHERTEXTBYTES] = &mut [0; CRYPTO_CIPHERTEXTBYTES];
-    let k: &mut [u8; CRYPTO_BYTES] = &mut [0; CRYPTO_BYTES];
-    let aes256ctrdrbg: &mut Aes256CtrDrbgStruct = &mut Aes256CtrDrbgStruct::new();
-    crypto_kem_keypair(pk, sk, aes256ctrdrbg);
-    crypto_kem_enc(ct, k, pk, aes256ctrdrbg);
-    crypto_kem_dec(k, ct, sk);
-}
-
-#[wasm_bindgen]
-pub fn ntru_bench_with_parameters(
-    pk_vec: Vec<u8>,
-    sk_vec: Vec<u8>
-) {
-    let pk: &mut [u8; CRYPTO_PUBLICKEYBYTES] = &mut [0; CRYPTO_PUBLICKEYBYTES];
-    let sk: &mut [u8; CRYPTO_SECRETKEYBYTES] = &mut [0; CRYPTO_SECRETKEYBYTES];
-    let ct: &mut [u8; CRYPTO_CIPHERTEXTBYTES] = &mut [0; CRYPTO_CIPHERTEXTBYTES];
-    let k: &mut [u8; CRYPTO_BYTES] = &mut [0; CRYPTO_BYTES];
-    pk.copy_from_slice(&pk_vec[..CRYPTO_PUBLICKEYBYTES]);
-    sk.copy_from_slice(&sk_vec[..CRYPTO_SECRETKEYBYTES]);
-    let aes256ctrdrbg: &mut Aes256CtrDrbgStruct = &mut Aes256CtrDrbgStruct::new();
-    crypto_kem_keypair(pk, sk, aes256ctrdrbg);
-    crypto_kem_enc(ct, k, pk, aes256ctrdrbg);
-    crypto_kem_dec(k, ct, sk);
-}
-
-#[wasm_bindgen]
 pub fn ntru_encrypt() -> Vec<u8> {
     let pk: &mut [u8; CRYPTO_PUBLICKEYBYTES] = &mut [0; CRYPTO_PUBLICKEYBYTES];
     let sk: &mut [u8; CRYPTO_SECRETKEYBYTES] = &mut [0; CRYPTO_SECRETKEYBYTES];
@@ -69,7 +40,7 @@ pub fn ntru_encrypt() -> Vec<u8> {
     let aes256ctrdrbg: &mut Aes256CtrDrbgStruct = &mut Aes256CtrDrbgStruct::new();
     crypto_kem_keypair(pk, sk, aes256ctrdrbg);
     crypto_kem_enc(c, k, pk, aes256ctrdrbg);
-    sk.to_vec()
+    c.to_vec()
 }
 
 const TEST_PASS: i32 = 0;
