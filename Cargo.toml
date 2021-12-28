@@ -1,5 +1,5 @@
 [package]
-name = "crypto_test"
+name = "ntrust"
 version = "0.1.0"
 authors = ["pt"]
 edition = "2018"
