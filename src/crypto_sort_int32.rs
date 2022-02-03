@@ -11,23 +11,22 @@ fn int32_minmax(a: &mut i32, b: &mut i32) {
 }
 
 #[cfg(feature = "ntruhps")]
-pub fn crypto_sort_int32(array: &mut [i32], n: usize) {
+pub fn crypto_sort_int32(x: &mut [i32]) {
     let mut top: isize = 1;
     let mut p: isize;
     let mut q: isize;
     let mut r: isize;
     let mut i: isize;
     let mut j: isize;
-    let x = array;
 
-    while top < (n as isize - top) {
+    while top < (x.len() as isize - top) {
         top += top;
     }
 
     p = top;
     while p >= 1 {
         i = 0;
-        while (i + 2 * p) <= n as isize {
+        while (i + 2 * p) <= x.len() as isize {
             for j in i..(i + p) {
                 let index = (j + p) as usize;
                 let mut a: i32 = x[j as usize];
@@ -38,7 +37,7 @@ pub fn crypto_sort_int32(array: &mut [i32], n: usize) {
             }
             i += 2 * p;
         }
-        for j in i..(n as isize - p) {
+        for j in i..(x.len() as isize - p) {
             let index = (j + p) as usize;
             let mut a: i32 = x[j as usize];
             let mut b: i32 = x[index];
@@ -53,7 +52,7 @@ pub fn crypto_sort_int32(array: &mut [i32], n: usize) {
         'qp_while: while q > p {
             if j != i {
                 loop {
-                    if j == (n as isize - q) as isize {
+                    if j == (x.len() as isize - q) as isize {
                         // perform "increment" operation before continuing
                         // so infinitely looping on the same q is avoided
                         q >>= 1;
@@ -76,7 +75,7 @@ pub fn crypto_sort_int32(array: &mut [i32], n: usize) {
                     }
                 }
             }
-            while (i + p) <= (n as isize - q) {
+            while (i + p) <= (x.len() as isize - q) {
                 for j in i..(i + p) {
                     let index = (j + p) as usize;
                     let mut a: i32 = x[index];
@@ -93,7 +92,7 @@ pub fn crypto_sort_int32(array: &mut [i32], n: usize) {
             }
             /* now i + p > n - q */
             j = i;
-            while j < (n as isize - q) {
+            while j < (x.len() as isize - q) {
                 let index = (j + p) as usize;
                 let mut a: i32 = x[index];
                 r = q;

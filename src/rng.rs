@@ -31,10 +31,11 @@ fn aes256_ecb(key: &mut [u8; 32], ctr: &mut [u8; 16], buffer: &mut [u8; 16]) {
     cipher.apply_keystream(&mut buffer[..]);
 }
 
-pub fn randombytes(x: &mut [u8], xlen: &mut u64, drbg_ctx: &mut Aes256CtrDrbgStruct) -> i32 {
+pub fn randombytes(x: &mut [u8], drbg_ctx: &mut Aes256CtrDrbgStruct) -> i32 {
+    let mut xlen = x.len() as u64;
     let mut block: [u8; 16] = [0; 16];
     let mut i = 0;
-    while *xlen > 0 {
+    while xlen > 0 {
         let mut j: isize = 15;
         while j >= 0 {
             if drbg_ctx.v[j as usize] == 0xff {
@@ -46,13 +47,13 @@ pub fn randombytes(x: &mut [u8], xlen: &mut u64, drbg_ctx: &mut Aes256CtrDrbgStr
             j -= 1;
         }
         aes256_ecb(&mut drbg_ctx.key, &mut drbg_ctx.v, &mut block);
-        if *xlen > 15 {
+        if xlen > 15 {
             x[i..i + 16].copy_from_slice(&block[..16]);
             i += 16;
-            *xlen -= 16;
+            xlen -= 16;
         } else {
-            x[*xlen as usize..(*xlen + *xlen) as usize].copy_from_slice(&block[..*xlen as usize]);
-            *xlen = 0;
+            x[xlen as usize..(xlen + xlen) as usize].copy_from_slice(&block[..xlen as usize]);
+            xlen = 0;
         }
     }
     let provided_data: &mut Option<[u8; 48]> = &mut None;

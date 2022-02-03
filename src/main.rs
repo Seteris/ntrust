@@ -119,8 +119,7 @@ fn create_request_file(filepath: &str, rng: &mut Aes256CtrDrbgStruct) -> R {
     // create 100 testcase seeds
     for _ in 0..100 {
         let mut tc = Testcase::new();
-        let mut l = tc.seed.len() as u64;
-        randombytes(&mut tc.seed, &mut l, rng);
+        randombytes(&mut tc.seed, rng);
 
         tc.write_to_file(&mut fd)?;
     }
@@ -142,8 +141,7 @@ fn create_response_file(filepath: &str, rng: &mut Aes256CtrDrbgStruct) -> R {
     // create 100 testcase seeds
     for _ in 0..100 {
         let mut tc = Testcase::new();
-        let mut l = tc.seed.len() as u64;
-        randombytes(&mut tc.seed, &mut l, rng);
+        randombytes(&mut tc.seed, rng);
 
         crypto_kem_keypair(&mut tc.pk, &mut tc.sk, rng);
         crypto_kem_enc(&mut tc.ct, &mut tc.ss, &tc.pk, rng);

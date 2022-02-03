@@ -133,7 +133,7 @@ fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
     }
     #[cfg(feature = "ntruhps")]
     {
-        crypto_sort_int32::crypto_sort_int32(&mut s, NTRU_N - 1);
+        crypto_sort_int32::crypto_sort_int32(&mut s);
     }
 
     // for(i=0; i<NTRU_N-1; i++)

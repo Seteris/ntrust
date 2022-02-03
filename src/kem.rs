@@ -20,12 +20,12 @@ pub fn crypto_kem_keypair(
     aes256ctrdrbg: &mut Aes256CtrDrbgStruct,
 ) {
     let mut seed: [u8; NTRU_SAMPLE_FG_BYTES] = [0; NTRU_SAMPLE_FG_BYTES];
-    randombytes(&mut seed, &mut (NTRU_SAMPLE_FG_BYTES as u64), aes256ctrdrbg);
+    randombytes(&mut seed, aes256ctrdrbg);
     owcpa_keypair(pk, sk, seed);
 
     let mut sk_copy: [u8; NTRU_PRFKEYBYTES] = [0; NTRU_PRFKEYBYTES];
     sk_copy.copy_from_slice(&sk[NTRU_OWCPA_SECRETKEYBYTES..]);
-    randombytes(&mut sk_copy, &mut (NTRU_PRFKEYBYTES as u64), aes256ctrdrbg);
+    randombytes(&mut sk_copy, aes256ctrdrbg);
     sk[NTRU_OWCPA_SECRETKEYBYTES..].copy_from_slice(&sk_copy);
 }
 
@@ -40,8 +40,7 @@ pub fn crypto_kem_enc(
     let rm: &mut [u8; NTRU_OWCPA_MSGBYTES] = &mut [0; NTRU_OWCPA_MSGBYTES];
     let rm_seed: &mut [u8; NTRU_SAMPLE_RM_BYTES] = &mut [0; NTRU_SAMPLE_RM_BYTES];
 
-    let xlen: &mut u64 = &mut (NTRU_SAMPLE_RM_BYTES as u64);
-    randombytes(rm_seed, xlen, aes256ctrdrbg);
+    randombytes(rm_seed, aes256ctrdrbg);
 
     sample_rm(r, m, *rm_seed);
 
