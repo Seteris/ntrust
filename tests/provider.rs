@@ -1,5 +1,5 @@
-use crypto_test::api::{CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES};
-use crypto_test::params::{NTRU_N, NTRU_SAMPLE_FG_BYTES};
+use ntrust::api::{CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES};
+use ntrust::params::{NTRU_N, NTRU_SAMPLE_FG_BYTES};
 
 const TEST_DATA_SIZE: usize = 10;
 pub const TEST_DATA_CHUNK_SIZE: usize = 10;

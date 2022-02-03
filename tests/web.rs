@@ -7,9 +7,9 @@ pub mod provider;
 
 use wasm_bindgen_test::*;
 
-use crypto_test::owcpa;
-use crypto_test::params;
-use crypto_test::params::NTRU_SAMPLE_FG_BYTES;
+use ntrust::owcpa;
+use ntrust::params;
+use ntrust::params::NTRU_SAMPLE_FG_BYTES;
 use provider::{TEST_DATA_CHUNK_COUNT, TEST_DATA_CHUNK_SIZE};
 
 wasm_bindgen_test_configure!(run_in_browser);
@@ -52,7 +52,7 @@ fn test_owcpa_keypair() {
                 keypair_comparison_data.test_data[i].seed,
                 keypair_comparison_data.test_data[i].seed.len()
             );
-            crypto_test::owcpa::owcpa_keypair(
+            ntrust::owcpa::owcpa_keypair(
                 &mut keypair_test_data.test_data[i].pk,
                 &mut keypair_test_data.test_data[i].sk,
                 keypair_test_data.test_data[i].seed,

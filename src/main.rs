@@ -4,12 +4,12 @@ use std::{error, fs};
 use std::io::Write;
 use std::io::{BufRead, BufReader};
 
-use crypto_test::api::{
+use ntrust::api::{
     CRYPTO_BYTES, CRYPTO_CIPHERTEXTBYTES, CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES,
 };
-use crypto_test::params::NTRU_N;
-use crypto_test::rng::{randombytes, randombytes_init, Aes256CtrDrbgStruct};
-use crypto_test::kem::{crypto_kem_keypair, crypto_kem_enc, crypto_kem_dec};
+use ntrust::params::NTRU_N;
+use ntrust::rng::{randombytes, randombytes_init, Aes256CtrDrbgStruct};
+use ntrust::kem::{crypto_kem_keypair, crypto_kem_enc, crypto_kem_dec};
 
 
 const CRYPTO_ALGNAME: &str = if NTRU_N == 509 {
