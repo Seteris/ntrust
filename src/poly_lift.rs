@@ -1,6 +1,9 @@
 use crate::params::NTRU_N;
 use crate::poly::{poly_z3_to_zq, Poly};
 
+#[cfg(feature = "ntruhrss")]
+use crate::poly_mod::poly_mod_3_phi_n;
+
 #[cfg(feature = "ntruhps")]
 pub fn poly_lift(r: &mut Poly, a: &Poly) {
     for i in 0..NTRU_N {
