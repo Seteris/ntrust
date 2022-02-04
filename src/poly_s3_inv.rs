@@ -2,11 +2,9 @@ use crate::params::NTRU_N;
 use crate::poly::Poly;
 
 fn mod3(a: &mut u16) -> u16 {
-    let t: i16;
-    let c: i16;
     *a = ((*a >> 2) + *a) & 3;
-    t = *a as i16 - 3;
-    c = t >> 5;
+    let t = *a as i16 - 3;
+    let c = t >> 5;
     (t ^ (c & (*a as i16 ^ t))) as u16
 }
 
@@ -20,10 +18,10 @@ pub fn poly_s3_inv(r: &mut Poly, a: &mut Poly) {
     let mut swap: i16;
     let mut t: i16;
 
-    let mut f: Poly = Poly::build(1);
-    let mut g: Poly = Poly::new();
-    let mut v: Poly = Poly::new();
-    let mut w: Poly = Poly::new();
+    let mut f = Poly::build(1);
+    let mut g = Poly::new();
+    let mut v = Poly::new();
+    let mut w = Poly::new();
     w.coeffs[0] = 1;
 
     for i in 0..(NTRU_N - 1) {

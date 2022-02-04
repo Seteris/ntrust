@@ -86,7 +86,7 @@ pub fn poly_r2_inv_to_rq_inv(r: &mut Poly, ai: Poly, a: &Poly) {
 }
 
 pub fn poly_rq_inv(r: &mut Poly, a: &Poly) {
-    let mut ai2: Poly = Poly::new();
+    let mut ai2 = Poly::new();
     poly_r2_inv(&mut ai2, a);
     poly_r2_inv_to_rq_inv(r, ai2, a);
 }

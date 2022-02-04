@@ -33,7 +33,7 @@ fn aes256_ecb(key: &mut [u8; 32], ctr: &mut [u8; 16], buffer: &mut [u8; 16]) {
 
 pub fn randombytes(x: &mut [u8], drbg_ctx: &mut Aes256CtrDrbgStruct) -> i32 {
     let mut xlen = x.len() as u64;
-    let mut block: [u8; 16] = [0; 16];
+    let mut block = [0u8; 16];
     let mut i = 0;
     while xlen > 0 {
         let mut j: isize = 15;
@@ -75,8 +75,8 @@ fn aes256_ctr_drbg_update(
     key: &mut [u8; 32],
     v: &mut [u8; 16],
 ) {
-    let mut temp: [u8; 48] = [0; 48];
-    let mut buffer: [u8; 16] = [0; 16];
+    let mut temp = [0u8; 48];
+    let mut buffer = [0u8; 16];
 
     for i in 0..3 {
         for j in (0..16).rev() {

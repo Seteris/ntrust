@@ -10,7 +10,7 @@ use crate::sample_iid::sample_iid;
 pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_BYTES]) {
     #[cfg(feature = "ntruhrss701")]
     {
-        let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0u8; NTRU_SAMPLE_IID_BYTES];
+        let mut bytes = [0u8; NTRU_SAMPLE_IID_BYTES];
         bytes.copy_from_slice(&uniformbytes[..NTRU_N]);
         sample_iid_plus(f, bytes);
         bytes.copy_from_slice(&uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
@@ -18,11 +18,10 @@ pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_B
     }
     #[cfg(feature = "ntruhps")]
     {
-        let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0u8; NTRU_SAMPLE_IID_BYTES];
+        let mut bytes = [0u8; NTRU_SAMPLE_IID_BYTES];
         bytes.copy_from_slice(&uniformbytes[..NTRU_N - 1]);
         sample_iid(f, bytes);
-        let mut fixed_type_bytes: [u8; NTRU_SAMPLE_FG_BYTES - NTRU_SAMPLE_IID_BYTES] =
-            [0; NTRU_SAMPLE_FG_BYTES - NTRU_SAMPLE_IID_BYTES];
+        let mut fixed_type_bytes = [0u8; NTRU_SAMPLE_FG_BYTES - NTRU_SAMPLE_IID_BYTES];
         fixed_type_bytes.copy_from_slice(&uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
         sample_fixed_type(g, fixed_type_bytes);
     }
@@ -31,7 +30,7 @@ pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_B
 pub fn sample_rm(r: &mut Poly, m: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_RM_BYTES]) {
     #[cfg(feature = "ntruhrss701")]
     {
-        let mut bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0; NTRU_SAMPLE_IID_BYTES];
+        let mut bytes = [0u8; NTRU_SAMPLE_IID_BYTES];
         bytes.copy_from_slice(&uniformbytes[..NTRU_SAMPLE_IID_BYTES]);
         sample_iid(r, bytes);
         bytes = [0; NTRU_SAMPLE_RM_BYTES - NTRU_SAMPLE_IID_BYTES];
@@ -40,11 +39,10 @@ pub fn sample_rm(r: &mut Poly, m: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_RM_B
     }
     #[cfg(feature = "ntruhps")]
     {
-        let mut to_iid_bytes: [u8; NTRU_SAMPLE_IID_BYTES] = [0; NTRU_SAMPLE_IID_BYTES];
+        let mut to_iid_bytes = [0u8; NTRU_SAMPLE_IID_BYTES];
         to_iid_bytes.copy_from_slice(&uniformbytes[..NTRU_SAMPLE_IID_BYTES]);
         sample_iid(r, to_iid_bytes);
-        let mut from_iid_bytes: [u8; NTRU_SAMPLE_RM_BYTES - NTRU_SAMPLE_IID_BYTES] =
-            [0; NTRU_SAMPLE_RM_BYTES - NTRU_SAMPLE_IID_BYTES];
+        let mut from_iid_bytes = [0u8; NTRU_SAMPLE_RM_BYTES - NTRU_SAMPLE_IID_BYTES];
         from_iid_bytes.copy_from_slice(&uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
         sample_fixed_type(m, from_iid_bytes);
     }
@@ -87,8 +85,7 @@ pub fn sample_iid_plus(r: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_IID_BYTES]) 
 fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
     // Assumes NTRU_SAMPLE_FT_BYTES = ceil(30*(n-1)/8)
 
-    let mut s: [i32; NTRU_N - 1] = [0; NTRU_N - 1];
-    let i: usize;
+    let mut s = [0i32; NTRU_N - 1];
 
     for i in 0..((NTRU_N - 1) / 4) {
         s[4 * i] = (((u[15 * i] as i32) << 2)
@@ -112,7 +109,7 @@ fn sample_fixed_type(r: &mut Poly, u: [u8; NTRU_SAMPLE_FT_BYTES]) {
     }
 
     if (NTRU_N - 1) > ((NTRU_N - 1) / 4) * 4 {
-        i = (NTRU_N - 1) / 4;
+        let i = (NTRU_N - 1) / 4;
         s[4 * i] = (((u[15 * i] as i32) << 2)
             + ((u[15 * i + 1] as i32) << 10)
             + ((u[15 * i + 2] as i32) << 18)

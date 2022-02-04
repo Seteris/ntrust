@@ -19,7 +19,7 @@ pub fn owcpa_check_ciphertext(ciphertext: &[u8]) -> u16 {
     /* A ciphertext is log2(q)*(n-1) bits packed into bytes.  */
     /* Check that any unused bits of the final byte are zero. */
 
-    let mut t: u16 = ciphertext[NTRU_CIPHERTEXTBYTES - 1] as u16;
+    let mut t = ciphertext[NTRU_CIPHERTEXTBYTES - 1] as u16;
     t &= 0xff << (8 - (7 & (NTRU_LOGQ * NTRU_PACK_DEG)));
 
     /* We have 0 <= t < 256 */
@@ -71,26 +71,26 @@ pub fn owcpa_keypair(
     sk: &mut [u8; CRYPTO_SECRETKEYBYTES],
     seed: [u8; NTRU_SAMPLE_FG_BYTES],
 ) {
-    let mut x3: Poly = Poly::new();
+    let mut x3 = Poly::new();
 
-    let f: &mut Poly = &mut Poly::new();
-    let g: &mut Poly = &mut Poly::new();
+    let f = &mut Poly::new();
+    let g = &mut Poly::new();
 
-    let invgf: &mut Poly = &mut Poly::new();
-    let tmp: &mut Poly = &mut Poly::new();
-    // let invf_mod3: &mut Poly = &mut x3;
-    // let gf: &mut Poly = &mut x3;
-    // let invh: &mut Poly = &mut x3;
-    // let h: &mut Poly = &mut x3;
+    let invgf = &mut Poly::new();
+    let tmp = &mut Poly::new();
+    // let invf_mod3 = &mut x3;
+    // let gf = &mut x3;
+    // let invh = &mut x3;
+    // let h = &mut x3;
     sample_fg(f, g, seed);
     poly_s3_inv(&mut x3, f);
-    let mut sk_bytes: [u8; NTRU_OWCPA_MSGBYTES] = [0u8; NTRU_OWCPA_MSGBYTES];
+    let mut sk_bytes = [0u8; NTRU_OWCPA_MSGBYTES];
     sk_bytes.copy_from_slice(&sk[..NTRU_OWCPA_MSGBYTES]);
     poly_s3_tobytes(&mut sk_bytes, f);
 
     sk[..NTRU_OWCPA_MSGBYTES].copy_from_slice(&sk_bytes);
 
-    let mut sk_msgbytes: [u8; NTRU_OWCPA_MSGBYTES] = [0u8; NTRU_OWCPA_MSGBYTES];
+    let mut sk_msgbytes = [0u8; NTRU_OWCPA_MSGBYTES];
     sk_msgbytes.copy_from_slice(
         &sk[NTRU_PACK_TRINARY_BYTES..NTRU_OWCPA_MSGBYTES + NTRU_PACK_TRINARY_BYTES],
     );
@@ -126,8 +126,7 @@ pub fn owcpa_keypair(
     poly_sq_mul(&mut x3, tmp, f);
 
     const SK_PACK_TRINARY_BYTE_SIZE: usize = CRYPTO_SECRETKEYBYTES - 2 * NTRU_PACK_TRINARY_BYTES;
-    let mut sk_pack_trinary_bytes: [u8; SK_PACK_TRINARY_BYTE_SIZE] =
-        [0u8; SK_PACK_TRINARY_BYTE_SIZE];
+    let mut sk_pack_trinary_bytes = [0u8; SK_PACK_TRINARY_BYTE_SIZE];
 
     sk_pack_trinary_bytes.copy_from_slice(&sk[2 * NTRU_PACK_TRINARY_BYTES..]);
     poly_sq_tobytes(&mut sk_pack_trinary_bytes, &mut x3);
@@ -139,12 +138,12 @@ pub fn owcpa_keypair(
 
 pub fn owcpa_enc(
     c: &mut [u8; CRYPTO_CIPHERTEXTBYTES],
-    r: &mut Poly,
-    m: &mut Poly,
+    r: &Poly,
+    m: &Poly,
     pk: &[u8; CRYPTO_PUBLICKEYBYTES],
 ) {
-    let x1: &mut Poly = &mut Poly::new();
-    let x2: &mut Poly = &mut Poly::new();
+    let x1 = &mut Poly::new();
+    let x2 = &mut Poly::new();
 
     // poly *h = &x1, *liftm = &x1;
     // poly *ct = &x2;
@@ -161,10 +160,10 @@ pub fn owcpa_enc(
 }
 
 pub fn owcpa_dec(rm: &mut [u8], ciphertext: &[u8], secretkey: &[u8; CRYPTO_SECRETKEYBYTES]) -> u16 {
-    let x1: &mut Poly = &mut Poly::new();
-    let x2: &mut Poly = &mut Poly::new();
-    let x3: &mut Poly = &mut Poly::new();
-    let x4: &mut Poly = &mut Poly::new();
+    let x1 = &mut Poly::new();
+    let x2 = &mut Poly::new();
+    let x3 = &mut Poly::new();
+    let x4 = &mut Poly::new();
 
     //   poly *c = &x1, *f = &x2, *cf = &x3;
     //   poly *mf = &x2, *finv3 = &x3, *m = &x4;
@@ -172,7 +171,7 @@ pub fn owcpa_dec(rm: &mut [u8], ciphertext: &[u8], secretkey: &[u8; CRYPTO_SECRE
     //   poly *b = &x1;
 
     poly_rq_sum_zero_frombytes(x1, ciphertext);
-    let mut sk_msgbytes: [u8; NTRU_OWCPA_MSGBYTES] = [0; NTRU_OWCPA_MSGBYTES];
+    let mut sk_msgbytes = [0u8; NTRU_OWCPA_MSGBYTES];
     sk_msgbytes.copy_from_slice(&secretkey[0..NTRU_OWCPA_MSGBYTES]);
     poly_s3_frombytes(x2, sk_msgbytes);
     poly_z3_to_zq(x2);
@@ -180,13 +179,13 @@ pub fn owcpa_dec(rm: &mut [u8], ciphertext: &[u8], secretkey: &[u8; CRYPTO_SECRE
     poly_rq_mul(x3, x1, x2);
     poly_rq_to_s3(x2, x3);
 
-    let mut sk_trinary_bytes: [u8; NTRU_OWCPA_MSGBYTES] = [0; NTRU_OWCPA_MSGBYTES];
+    let mut sk_trinary_bytes = [0u8; NTRU_OWCPA_MSGBYTES];
     sk_trinary_bytes.copy_from_slice(
         &secretkey[NTRU_PACK_TRINARY_BYTES..NTRU_PACK_TRINARY_BYTES + NTRU_OWCPA_MSGBYTES],
     );
     poly_s3_frombytes(x3, sk_trinary_bytes);
     poly_s3_mul(x4, x2, x3);
-    let mut ntru_pack_trinary_bytes: [u8; NTRU_OWCPA_MSGBYTES] = [0; NTRU_OWCPA_MSGBYTES];
+    let mut ntru_pack_trinary_bytes = [0u8; NTRU_OWCPA_MSGBYTES];
     ntru_pack_trinary_bytes[..NTRU_OWCPA_MSGBYTES - NTRU_PACK_TRINARY_BYTES]
         .copy_from_slice(&rm[NTRU_PACK_TRINARY_BYTES..]);
     poly_s3_tobytes(&mut ntru_pack_trinary_bytes, x4);
@@ -212,8 +211,7 @@ pub fn owcpa_dec(rm: &mut [u8], ciphertext: &[u8], secretkey: &[u8; CRYPTO_SECRE
     }
 
     /* r = b / h mod (q, Phi_n) */
-    let mut sq_frombytes: [u8; CRYPTO_SECRETKEYBYTES - 2 * NTRU_PACK_TRINARY_BYTES] =
-        [0; CRYPTO_SECRETKEYBYTES - 2 * NTRU_PACK_TRINARY_BYTES];
+    let mut sq_frombytes = [0u8; CRYPTO_SECRETKEYBYTES - 2 * NTRU_PACK_TRINARY_BYTES];
     sq_frombytes.copy_from_slice(&secretkey[2 * NTRU_PACK_TRINARY_BYTES..]);
     poly_sq_frombytes(x3, &sq_frombytes);
     poly_sq_mul(x4, x1, x3);
@@ -232,7 +230,7 @@ pub fn owcpa_dec(rm: &mut [u8], ciphertext: &[u8], secretkey: &[u8; CRYPTO_SECRE
     fail |= owcpa_check_r(x4) as u16;
 
     poly_trinary_zq_to_z3(x4);
-    let mut s3_tobytes: [u8; NTRU_OWCPA_MSGBYTES] = [0; NTRU_OWCPA_MSGBYTES];
+    let mut s3_tobytes = [0u8; NTRU_OWCPA_MSGBYTES];
     s3_tobytes.copy_from_slice(&rm[..NTRU_OWCPA_MSGBYTES]);
     poly_s3_tobytes(&mut s3_tobytes, x4);
 

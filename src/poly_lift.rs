@@ -17,9 +17,9 @@ pub fn poly_lift(r: &mut Poly, a: &Poly) {
     /* NOTE: Assumes input is in {0,1,2}^N */
     /*       Produces output in [0,Q-1]^N */
 
-    let mut b: Poly = Poly::new();
-    let t: u16 = (3 - (NTRU_N % 3)) as u16;
-    let mut zj: u16 = 0;
+    let mut b = Poly::new();
+    let t = (3 - (NTRU_N % 3)) as u16;
+    let mut zj = 0u16;
 
     /* Define z by <z*x^i, x-1> = delta_{i,0} mod 3:      */
     /*   t      = -1/N mod p = -N mod 3                   */

@@ -19,11 +19,11 @@ pub fn crypto_kem_keypair(
     sk: &mut [u8; CRYPTO_SECRETKEYBYTES],
     aes256ctrdrbg: &mut Aes256CtrDrbgStruct,
 ) {
-    let mut seed: [u8; NTRU_SAMPLE_FG_BYTES] = [0; NTRU_SAMPLE_FG_BYTES];
+    let mut seed = [0u8; NTRU_SAMPLE_FG_BYTES];
     randombytes(&mut seed, aes256ctrdrbg);
     owcpa_keypair(pk, sk, seed);
 
-    let mut sk_copy: [u8; NTRU_PRFKEYBYTES] = [0; NTRU_PRFKEYBYTES];
+    let mut sk_copy = [0u8; NTRU_PRFKEYBYTES];
     sk_copy.copy_from_slice(&sk[NTRU_OWCPA_SECRETKEYBYTES..]);
     randombytes(&mut sk_copy, aes256ctrdrbg);
     sk[NTRU_OWCPA_SECRETKEYBYTES..].copy_from_slice(&sk_copy);
@@ -35,17 +35,17 @@ pub fn crypto_kem_enc(
     pk: &[u8; CRYPTO_PUBLICKEYBYTES],
     aes256ctrdrbg: &mut Aes256CtrDrbgStruct,
 ) {
-    let r: &mut Poly = &mut Poly::new();
-    let m: &mut Poly = &mut Poly::new();
-    let rm: &mut [u8; NTRU_OWCPA_MSGBYTES] = &mut [0; NTRU_OWCPA_MSGBYTES];
-    let rm_seed: &mut [u8; NTRU_SAMPLE_RM_BYTES] = &mut [0; NTRU_SAMPLE_RM_BYTES];
+    let r = &mut Poly::new();
+    let m = &mut Poly::new();
+    let rm = &mut [0u8; NTRU_OWCPA_MSGBYTES];
+    let rm_seed = &mut [0u8; NTRU_SAMPLE_RM_BYTES];
 
     randombytes(rm_seed, aes256ctrdrbg);
 
     sample_rm(r, m, *rm_seed);
 
     poly_s3_tobytes(rm, r);
-    let trinary_bytes: &mut [u8; NTRU_OWCPA_MSGBYTES] = &mut [0; NTRU_OWCPA_MSGBYTES];
+    let trinary_bytes = &mut [0u8; NTRU_OWCPA_MSGBYTES];
     trinary_bytes[..NTRU_OWCPA_MSGBYTES - NTRU_PACK_TRINARY_BYTES]
         .copy_from_slice(&rm[NTRU_PACK_TRINARY_BYTES..]);
     poly_s3_tobytes(trinary_bytes, m);
@@ -66,9 +66,8 @@ pub fn crypto_kem_dec(
     c: &[u8; CRYPTO_CIPHERTEXTBYTES],
     sk: &[u8; CRYPTO_SECRETKEYBYTES],
 ) -> i32 {
-    let rm: &mut [u8; NTRU_OWCPA_MSGBYTES] = &mut [0; NTRU_OWCPA_MSGBYTES];
-    let mut buf: [u8; NTRU_PRFKEYBYTES + NTRU_CIPHERTEXTBYTES] =
-        [0; NTRU_PRFKEYBYTES + NTRU_CIPHERTEXTBYTES];
+    let rm = &mut [0u8; NTRU_OWCPA_MSGBYTES];
+    let mut buf = [0u8; NTRU_PRFKEYBYTES + NTRU_CIPHERTEXTBYTES];
     let fail = owcpa_dec(rm, c, sk);
     /* If fail = 0 then c = Enc(h, rm). There is no need to re-encapsulate. */
     /* See comment in owcpa_dec for details.                                */
@@ -81,7 +80,7 @@ pub fn crypto_kem_dec(
     );
     buf[NTRU_PRFKEYBYTES..(NTRU_CIPHERTEXTBYTES + NTRU_PRFKEYBYTES)]
         .clone_from_slice(&c[..NTRU_CIPHERTEXTBYTES]);
-    let mut rm_bytes: [u8; 32] = [0; 32];
+    let mut rm_bytes = [0u8; 32];
     rm_bytes.copy_from_slice(&rm[0..32]);
 
     sha3_256(&mut rm_bytes, &buf);

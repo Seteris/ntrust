@@ -5,8 +5,7 @@ use crate::poly::MODQ;
 #[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677"))]
 #[allow(arithmetic_overflow)]
 pub fn poly_sq_tobytes(r: &mut [u8], a: &mut Poly) {
-    let mut t: [u16; 8] = [0; 8];
-    let i: i16;
+    let mut t = [0u16; 8];
     for i in 0..NTRU_PACK_DEG / 8 {
         for (j, val) in t.iter_mut().enumerate() {
             *val = MODQ(a.coeffs[8 * i + j]);
@@ -24,7 +23,7 @@ pub fn poly_sq_tobytes(r: &mut [u8], a: &mut Poly) {
         r[11 * i + 10] = (t[7]).wrapping_shr(3) as u8;
     }
 
-    i = NTRU_PACK_DEG as i16 / 8;
+    let i = NTRU_PACK_DEG as i16 / 8;
     for j in 0..NTRU_PACK_DEG as i16 - 8 * i {
         t[j as usize] = MODQ(a.coeffs[(8 * i + j) as usize]);
     }
@@ -65,8 +64,7 @@ pub fn poly_sq_tobytes(r: &mut [u8], a: &mut Poly) {
 
 #[cfg(feature = "ntruhrss701")]
 pub fn poly_sq_tobytes(r: &mut [u8], a: &mut Poly) {
-    let mut t: [u16; 8] = [0; 8];
-    let i: i16;
+    let mut t = [0u16; 8];
 
     for i in 0..NTRU_PACK_DEG / 8 {
         for j in 0..8 {
@@ -87,7 +85,7 @@ pub fn poly_sq_tobytes(r: &mut [u8], a: &mut Poly) {
         r[13 * i + 12] = (t[7] >> 5) as u8;
     }
 
-    i = (NTRU_PACK_DEG / 8) as i16;
+    let i = (NTRU_PACK_DEG / 8) as i16;
     for j in 0..(NTRU_PACK_DEG as i16 - 8 * i) {
         t[j as usize] = MODQ(a.coeffs[(8 * i + j) as usize]);
     }
@@ -121,7 +119,6 @@ pub fn poly_sq_tobytes(r: &mut [u8], a: &mut Poly) {
 #[cfg(any(feature = "ntruhps2048509", feature = "ntruhps2048677"))]
 #[allow(arithmetic_overflow)]
 pub fn poly_sq_frombytes(r: &mut Poly, a: &[u8]) {
-    let i = (NTRU_PACK_DEG / 8) - 1;
     for i in 0..(NTRU_PACK_DEG / 8) {
         r.coeffs[8 * i] = (a[11 * i] | ((a[11 * i + 1] & 0x07) << 8)) as u16;
         r.coeffs[8 * i + 1] = ((a[11 * i + 1] >> 3) | ((a[11 * i + 2] & 0x3f) << 5)) as u16;
@@ -134,6 +131,7 @@ pub fn poly_sq_frombytes(r: &mut Poly, a: &[u8]) {
         r.coeffs[8 * i + 6] = ((a[11 * i + 8] >> 2) | ((a[11 * i + 9] & 0x1f) << 6)) as u16;
         r.coeffs[8 * i + 7] = ((a[11 * i + 9] >> 5) | ((a[11 * i + 10]) << 3)) as u16;
     }
+    let i = (NTRU_PACK_DEG / 8) - 1;
     match NTRU_PACK_DEG & 0x07 {
         // cases 0 and 6 are impossible since 2 generates (Z/n)* and
         // p mod 8 in {1, 7} implies that 2 is a quadratic residue.
@@ -167,7 +165,6 @@ pub fn poly_sq_frombytes(r: &mut Poly, a: &[u8]) {
 #[cfg(feature = "ntruhrss701")]
 #[allow(arithmetic_overflow)]
 pub fn poly_sq_frombytes(r: &mut Poly, a: &[u8]) {
-    let i = (NTRU_PACK_DEG / 8) - 1;
     for i in 0..(NTRU_PACK_DEG / 8) {
         r.coeffs[8 * i + 0] = (a[13 * i + 0] as u16 | ((a[13 * i + 1] as u16 & 0x1f) << 8)) as u16;
         r.coeffs[8 * i + 1] = ((a[13 * i + 1] as u16 >> 5)
@@ -189,6 +186,7 @@ pub fn poly_sq_frombytes(r: &mut Poly, a: &[u8]) {
         r.coeffs[8 * i + 7] =
             ((a[13 * i + 11] as u16 >> 3) | ((a[13 * i + 12] as u16) << 5)) as u16;
     }
+    let i = (NTRU_PACK_DEG / 8) - 1;
     match NTRU_PACK_DEG & 0x07 {
         // cases 0 and 6 are impossible since 2 generates (Z/n)* and
         // p mod 8 in {1, 7} implies that 2 is a quadratic residue.
