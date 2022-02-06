@@ -59,7 +59,7 @@ pub fn poly_lift(r: &mut Poly, a: &Poly) {
 
     /* Multiply by (x-1) */
     r.coeffs[0] = 0 - (b.coeffs[0]);
-    for i in 0..NTRU_N {
+    for i in 0..(NTRU_N - 1) {
         r.coeffs[i + 1] = b.coeffs[i] - b.coeffs[i + 1];
     }
 }
