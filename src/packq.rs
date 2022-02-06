@@ -55,7 +55,7 @@ pub fn poly_sq_tobytes(r: &mut [u8], a: &mut Poly) {
 #[cfg(feature = "ntruhps4096821")]
 pub fn poly_sq_tobytes(r: &mut [u8], a: &mut Poly) {
     for i in 0..NTRU_PACK_DEG / 2 {
-        r[3 * i + 0] = (MODQ(a.coeffs[2 * i + 0] as u16) & 0xf) as u8;
+        r[3 * i + 0] = (MODQ(a.coeffs[2 * i + 0] as u16) & 0xff) as u8;
         r[3 * i + 1] =
             ((MODQ(a.coeffs[2 * i + 0]) >> 8) | ((MODQ(a.coeffs[2 * i + 1]) & 0x0f) << 4)) as u8;
         r[3 * i + 2] = (MODQ(a.coeffs[2 * i + 1]) >> 4) as u8;
