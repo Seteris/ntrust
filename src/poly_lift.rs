@@ -58,8 +58,8 @@ pub fn poly_lift(r: &mut Poly, a: &Poly) {
     poly_z3_to_zq(&mut b);
 
     /* Multiply by (x-1) */
-    r.coeffs[0] = 0 - (b.coeffs[0]);
+    r.coeffs[0] = 0u16.wrapping_sub(b.coeffs[0]);
     for i in 0..(NTRU_N - 1) {
-        r.coeffs[i + 1] = b.coeffs[i] - b.coeffs[i + 1];
+        r.coeffs[i + 1] = b.coeffs[i].wrapping_sub(b.coeffs[i + 1]);
     }
 }

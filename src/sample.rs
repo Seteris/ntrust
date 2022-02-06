@@ -11,7 +11,7 @@ pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_B
     #[cfg(feature = "ntruhrss701")]
     {
         let mut bytes = [0u8; NTRU_SAMPLE_IID_BYTES];
-        bytes.copy_from_slice(&uniformbytes[..NTRU_N]);
+        bytes.copy_from_slice(&uniformbytes[..NTRU_SAMPLE_IID_BYTES]);
         sample_iid_plus(f, bytes);
         bytes.copy_from_slice(&uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
         sample_iid_plus(f, bytes);
@@ -19,9 +19,9 @@ pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_B
     #[cfg(feature = "ntruhps")]
     {
         let mut bytes = [0u8; NTRU_SAMPLE_IID_BYTES];
-        bytes.copy_from_slice(&uniformbytes[..NTRU_N - 1]);
+        bytes.copy_from_slice(&uniformbytes[..NTRU_SAMPLE_IID_BYTES]);
         sample_iid(f, bytes);
-        let mut fixed_type_bytes = [0u8; NTRU_SAMPLE_FG_BYTES - NTRU_SAMPLE_IID_BYTES];
+        let mut fixed_type_bytes = [0u8; NTRU_SAMPLE_FT_BYTES];
         fixed_type_bytes.copy_from_slice(&uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
         sample_fixed_type(g, fixed_type_bytes);
     }
@@ -58,12 +58,12 @@ pub fn sample_iid_plus(r: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_IID_BYTES]) 
 
     /* Map {0,1,2} -> {0, 1, 2^16 - 1} */
     for i in 0..(NTRU_N - 1) {
-        r.coeffs[i] = r.coeffs[i] | (0 - (r.coeffs[i] >> 1));
+        r.coeffs[i] = r.coeffs[i] | 0u16.wrapping_sub(r.coeffs[i] >> 1);
     }
 
     /* s = <x*r, r>.  (r[n-1] = 0) */
     for i in 0..(NTRU_N - 1) {
-        s += ((r.coeffs[i + 1] as u32) * (r.coeffs[i] as u32)) as u16;
+        s = s.wrapping_add(((r.coeffs[i + 1] as u32) * (r.coeffs[i] as u32)) as u16);
     }
 
     /* Extract sign of s (sign(0) = 1) */
