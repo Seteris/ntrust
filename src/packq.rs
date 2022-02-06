@@ -156,8 +156,8 @@ pub fn poly_sq_frombytes(r: &mut Poly, a: &[u8]) {
 #[allow(arithmetic_overflow)]
 pub fn poly_sq_frombytes(r: &mut Poly, a: &[u8]) {
     for i in 0..NTRU_PACK_DEG / 2 {
-        r.coeffs[2 * i] = a[3 * i] as u16 | ((a[3 * i + 1] & 0x0f) << 8) as u16;
-        r.coeffs[2 * i + 1] = a[3 * i] as u16 | ((a[3 * i + 1] & 0x0f) << 8) as u16;
+        r.coeffs[2 * i] = a[3 * i] as u16 | ((a[3 * i + 1] as u16 & 0x0f) << 8);
+        r.coeffs[2 * i + 1] = ((a[3 * i + 1] as u16) >> 4) | ((a[3 * i + 2] as u16 & 0xff) << 4);
     }
     r.coeffs[NTRU_N - 1] = 0;
 }
