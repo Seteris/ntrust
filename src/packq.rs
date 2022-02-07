@@ -186,7 +186,7 @@ pub fn poly_sq_frombytes(r: &mut Poly, a: &[u8]) {
         r.coeffs[8 * i + 7] =
             ((a[13 * i + 11] as u16 >> 3) | ((a[13 * i + 12] as u16) << 5)) as u16;
     }
-    let i = (NTRU_PACK_DEG / 8) - 1;
+    let i = NTRU_PACK_DEG / 8;
     match NTRU_PACK_DEG & 0x07 {
         // cases 0 and 6 are impossible since 2 generates (Z/n)* and
         // p mod 8 in {1, 7} implies that 2 is a quadratic residue.
