@@ -14,7 +14,7 @@ pub fn sample_fg(f: &mut Poly, g: &mut Poly, uniformbytes: [u8; NTRU_SAMPLE_FG_B
         bytes.copy_from_slice(&uniformbytes[..NTRU_SAMPLE_IID_BYTES]);
         sample_iid_plus(f, bytes);
         bytes.copy_from_slice(&uniformbytes[NTRU_SAMPLE_IID_BYTES..]);
-        sample_iid_plus(f, bytes);
+        sample_iid_plus(g, bytes);
     }
     #[cfg(feature = "ntruhps")]
     {
