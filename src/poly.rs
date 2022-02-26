@@ -20,13 +20,18 @@ impl Poly {
     }
 }
 
-pub const MODQ: fn(u16) -> u16 = |x| {
-    x & (NTRU_Q - 1) as u16
-};
+impl Default for Poly {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+pub const MODQ: fn(u16) -> u16 = |x| x & (NTRU_Q - 1) as u16;
 
 pub fn poly_z3_to_zq(r: &mut Poly) {
     for i in 0..NTRU_N {
-        r.coeffs[i] = (r.coeffs[i] as i16 | 0 - (r.coeffs[i] >> 1) as i16 & (NTRU_Q as u16 - 1) as i16) as u16;
+        r.coeffs[i] =
+            (r.coeffs[i] as i16 | -((r.coeffs[i] >> 1) as i16) & (NTRU_Q as u16 - 1) as i16) as u16;
     }
 }
 
@@ -81,7 +86,7 @@ pub fn poly_r2_inv_to_rq_inv(r: &mut Poly, ai: Poly, a: &Poly) {
 }
 
 pub fn poly_rq_inv(r: &mut Poly, a: &Poly) {
-    let mut ai2: Poly = Poly::new();
+    let mut ai2 = Poly::new();
     poly_r2_inv(&mut ai2, a);
     poly_r2_inv_to_rq_inv(r, ai2, a);
 }

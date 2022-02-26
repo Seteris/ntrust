@@ -1,5 +1,7 @@
 use crate::params::NTRU_N;
-use crate::poly::{Poly, poly_z3_to_zq};
+use crate::poly::{poly_z3_to_zq, Poly};
+
+#[cfg(feature = "ntruhrss")]
 use crate::poly_mod::poly_mod_3_phi_n;
 
 #[cfg(feature = "ntruhps")]
@@ -15,9 +17,9 @@ pub fn poly_lift(r: &mut Poly, a: &Poly) {
     /* NOTE: Assumes input is in {0,1,2}^N */
     /*       Produces output in [0,Q-1]^N */
 
-    let mut b: Poly = Poly::new();
-    let t: u16 = (3 - (NTRU_N % 3)) as u16;
-    let mut zj: u16 = 0;
+    let mut b = Poly::new();
+    let t = (3 - (NTRU_N % 3)) as u16;
+    let mut zj = 0u16;
 
     /* Define z by <z*x^i, x-1> = delta_{i,0} mod 3:      */
     /*   t      = -1/N mod p = -N mod 3                   */
@@ -56,8 +58,8 @@ pub fn poly_lift(r: &mut Poly, a: &Poly) {
     poly_z3_to_zq(&mut b);
 
     /* Multiply by (x-1) */
-    r.coeffs[0] = 0 - (b.coeffs[0]);
-    for i in 0..NTRU_N {
-        r.coeffs[i + 1] = b.coeffs[i] - b.coeffs[i + 1];
+    r.coeffs[0] = 0u16.wrapping_sub(b.coeffs[0]);
+    for i in 0..(NTRU_N - 1) {
+        r.coeffs[i + 1] = b.coeffs[i].wrapping_sub(b.coeffs[i + 1]);
     }
 }
