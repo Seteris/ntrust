@@ -1,16 +1,15 @@
 use hex;
 
-use std::{error, fs};
 use std::io::Write;
 use std::io::{BufRead, BufReader};
+use std::{error, fs};
 
 use ntrust::api::{
     CRYPTO_BYTES, CRYPTO_CIPHERTEXTBYTES, CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES,
 };
+use ntrust::kem::{crypto_kem_dec, crypto_kem_enc, crypto_kem_keypair};
 use ntrust::params::NTRU_N;
 use ntrust::rng::{randombytes, randombytes_init, Aes256CtrDrbgStruct};
-use ntrust::kem::{crypto_kem_keypair, crypto_kem_enc, crypto_kem_dec};
-
 
 const CRYPTO_ALGNAME: &str = if NTRU_N == 509 {
     "ntruhps2048509"
@@ -18,7 +17,9 @@ const CRYPTO_ALGNAME: &str = if NTRU_N == 509 {
     "ntruhps2048677"
 } else if NTRU_N == 821 {
     "ntruhps4096821"
-} else /*if NTRU_N == 701*/ {
+} else
+/*if NTRU_N == 701*/
+{
     "ntruhrss"
 };
 
@@ -35,8 +36,11 @@ struct Testcase {
 }
 
 fn is_zero(x: &[u8]) -> bool {
-    if x.is_empty() { true }
-    else { x[0] == 0 && is_zero(&x[1..]) }
+    if x.is_empty() {
+        true
+    } else {
+        x[0] == 0 && is_zero(&x[1..])
+    }
 }
 
 impl Testcase {
@@ -53,8 +57,11 @@ impl Testcase {
 
     fn write_to_file(&self, fd: &mut fs::File) -> R {
         let repr_bytes = |bytes: &[u8]| -> String {
-            if is_zero(&bytes) { "".to_string() }
-            else { hex::encode(bytes) }
+            if is_zero(&bytes) {
+                "".to_string()
+            } else {
+                hex::encode(bytes)
+            }
         };
 
         writeln!(fd, "count = {}", self.count)?;
@@ -98,7 +105,7 @@ impl Testcase {
     fn read_from_file(&mut self, reader: &mut BufReader<fs::File>) -> R {
         for line in reader.lines() {
             if !self.read_line(&line?)? {
-                return Ok(())
+                return Ok(());
             }
         }
 
@@ -152,7 +159,6 @@ fn create_response_file(filepath: &str, rng: &mut Aes256CtrDrbgStruct) -> R {
 
     Ok(())
 }
-
 
 fn verify(filepath: &str) -> R {
     let fd = fs::File::open(filepath)?;
