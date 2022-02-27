@@ -3,7 +3,7 @@ use wasm_bindgen::prelude::*;
 use crate::api::{
     CRYPTO_BYTES, CRYPTO_CIPHERTEXTBYTES, CRYPTO_PUBLICKEYBYTES, CRYPTO_SECRETKEYBYTES,
 };
-use crate::kem::{crypto_kem_enc, crypto_kem_keypair};
+use crate::kem::{crypto_kem_dec, crypto_kem_enc, crypto_kem_keypair};
 use crate::owcpa::owcpa_keypair;
 use crate::params::NTRU_SAMPLE_FG_BYTES;
 use crate::rng::Aes256CtrDrbgStruct;
@@ -34,53 +34,64 @@ mod utils;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-pub fn ntru_encrypt() -> Vec<u8> {
+pub fn ntrust_keypair() -> Vec<u8> {
     let pk = &mut [0u8; CRYPTO_PUBLICKEYBYTES];
     let sk = &mut [0u8; CRYPTO_SECRETKEYBYTES];
-    let c = &mut [0u8; CRYPTO_CIPHERTEXTBYTES];
-    let k = &mut [0u8; CRYPTO_BYTES];
+    pk.copy_from_slice(&pk_vec[..CRYPTO_PUBLICKEYBYTES]);
+    sk.copy_from_slice(&sk_vec[..CRYPTO_SECRETKEYBYTES]);
     let aes256ctrdrbg = &mut Aes256CtrDrbgStruct::new();
     crypto_kem_keypair(pk, sk, aes256ctrdrbg);
+    let mut result = pk.to_vec();
+    result.append(&mut sk.to_vec());
+    result
+}
+
+#[wasm_bindgen]
+pub fn ntrust_enc(k_vec: Vec<u8>, pk_vec: Vec<u8>) -> Vec<u8> {
+    assert_eq!(k_vec.len(), CRYPTO_BYTES);
+    assert_eq!(pk_vec.len(), CRYPTO_PUBLICKEYBYTES);
+    let c = &mut [0u8; CRYPTO_CIPHERTEXTBYTES];
+    let k = &mut [0u8; CRYPTO_BYTES];
+    let pk = &mut [0u8; CRYPTO_PUBLICKEYBYTES];
+    k.copy_from_slice(&k_vec[..CRYPTO_BYTES]);
+    pk.copy_from_slice(&pk_vec[..CRYPTO_PUBLICKEYBYTES]);
+    let aes256ctrdrbg = &mut Aes256CtrDrbgStruct::new();
     crypto_kem_enc(c, k, pk, aes256ctrdrbg);
     c.to_vec()
 }
 
-const TEST_PASS: i32 = 0;
-const PARAMETER_SIZE_INVALID: i32 = 1;
 
 #[wasm_bindgen]
-pub fn crypto_kem_keypair_test(
-    pk_vec: Vec<u8>,
-    sk_vec: Vec<u8>,
-    seed_vec: Vec<u8>,
-    comparison_pk_vec: Vec<u8>,
-    comparison_sk_vec: Vec<u8>,
-    comparison_seed_vec: Vec<u8>,
-) -> i32 {
-    if pk_vec.len() != CRYPTO_PUBLICKEYBYTES
-        || sk_vec.len() != CRYPTO_SECRETKEYBYTES
-        || seed_vec.len() != NTRU_SAMPLE_FG_BYTES
-        || comparison_pk_vec.len() != CRYPTO_PUBLICKEYBYTES
-        || comparison_sk_vec.len() != CRYPTO_SECRETKEYBYTES
-        || comparison_seed_vec.len() != NTRU_SAMPLE_FG_BYTES
-    {
-        return PARAMETER_SIZE_INVALID;
-    }
-    let pk = &mut [0u8; CRYPTO_PUBLICKEYBYTES];
+pub fn ntrust_dec(k_vec: Vec<u8>, c_vec: Vec<u8>, sk_vec: Vec<u8>) -> Vec<u8> {
+    assert_eq!(k_vec.len(), CRYPTO_BYTES);
+    assert_eq!(c_vec.len(), CRYPTO_CIPHERTEXTBYTES);
+    assert_eq!(sk_vec.len(), CRYPTO_SECRETKEYBYTES);
+    let k = &mut [0u8; CRYPTO_BYTES];
+    let c = &mut [0u8; CRYPTO_CIPHERTEXTBYTES];
     let sk = &mut [0u8; CRYPTO_SECRETKEYBYTES];
-    let mut seed = [0u8; NTRU_SAMPLE_FG_BYTES];
-    let comparison_pk = &mut [0u8; CRYPTO_PUBLICKEYBYTES];
-    let comparison_sk = &mut [0u8; CRYPTO_SECRETKEYBYTES];
-    let mut comparison_seed = [0u8; NTRU_SAMPLE_FG_BYTES];
-    pk.copy_from_slice(&pk_vec[..CRYPTO_PUBLICKEYBYTES]);
-    sk.copy_from_slice(&sk_vec[..CRYPTO_SECRETKEYBYTES]);
-    seed.copy_from_slice(&seed_vec[..NTRU_SAMPLE_FG_BYTES]);
-    comparison_pk.copy_from_slice(&comparison_pk_vec[..CRYPTO_PUBLICKEYBYTES]);
-    comparison_sk.copy_from_slice(&comparison_sk_vec[..CRYPTO_SECRETKEYBYTES]);
-    comparison_seed.copy_from_slice(&comparison_seed_vec[..NTRU_SAMPLE_FG_BYTES]);
-    owcpa_keypair(pk, sk, seed);
-    assert_eq!(pk, comparison_pk);
-    assert_eq!(sk, comparison_sk);
-    assert_eq!(seed, comparison_seed);
-    TEST_PASS
+    k.copy_from_slice(&k_vec[..CRYPTO_BYTES]);
+    c.copy_from_slice(&k_vec[..CRYPTO_CIPHERTEXTBYTES]);
+    sk.copy_from_slice(&k_vec[..CRYPTO_SECRETKEYBYTES]);
+    crypto_kem_dec(k, c, sk);
+    k.to_vec()
+}
+
+#[wasm_bindgen]
+pub fn get_public_key_length() -> usize {
+    CRYPTO_PUBLICKEYBYTES
+}
+
+#[wasm_bindgen]
+pub fn get_secret_key_length() -> usize {
+    CRYPTO_PUBLICKEYBYTES
+}
+
+#[wasm_bindgen]
+pub fn get_ciphertext_length() -> usize {
+    CRYPTO_CIPHERTEXTBYTES
+}
+
+#[wasm_bindgen]
+pub fn get_bytes_length() -> usize {
+    CRYPTO_BYTES
 }
