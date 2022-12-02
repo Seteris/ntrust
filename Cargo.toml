@@ -3,6 +3,11 @@ name = "ntrust"
 version = "0.7.0"
 authors = ["pt"]
 edition = "2018"
+repository = "https://github.com/Seteris/ntrust"
+description = "A wasm compatible implementation of the ntrust protocol"
+readme = "README.md"
+license = "MIT"
+keywords = ["cryptography", "web-programming", "wasm"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
